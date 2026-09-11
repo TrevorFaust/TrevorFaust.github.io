@@ -37,6 +37,17 @@ export const projects = [
     featured: true,
   },
   {
+    slug: "fantasy-league-blog",
+    title: "Fantasy League Blog",
+    blurb: "A commissioner power-rankings site for my Seattle fantasy league — season archives, quarterly rankings, and zero filter (with an optional safe mode).",
+    detail:
+      "Migrated off Wix onto Next.js/Vercel. Home hosts the live season; past years live as full season recaps with the original writeups intact.",
+    href: "https://fantasy-league-blog.vercel.app",
+    repo: "https://github.com/TrevorFaust/fantasy-league-blog",
+    tags: ["Next.js", "Vercel", "Sports", "Content"],
+    featured: true,
+  },
+  {
     slug: "apartment-hunt",
     title: "Apartment Hunt",
     blurb: "Find niche, off-the-books apartments matched to your specifications.",
