@@ -1,0 +1,202 @@
+---
+import { site } from "../data/site";
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="shell hero__grid">
+    <div class="hero__copy">
+      <p class="section-label reveal">Seattle · Data · Product</p>
+      <h1 id="hero-title" class="display hero__title reveal reveal-delay-1">
+        {site.name}
+      </h1>
+      <p class="lead reveal reveal-delay-2">{site.tagline}</p>
+      <div class="hero__actions reveal reveal-delay-3">
+        <a class="btn btn--primary" href="#projects">View projects</a>
+        <a class="btn btn--ghost" href="#about">About me</a>
+      </div>
+    </div>
+
+    <aside class="hero__aside reveal reveal-delay-2" aria-label="Portrait placeholder">
+      <div class="portrait">
+        <div class="portrait__frame">
+          <span class="portrait__mark">TF</span>
+          <p class="portrait__note">Photo coming soon</p>
+        </div>
+        <div class="portrait__meta">
+          <span>Open to roles</span>
+          <span>Sports · Technology</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="hero__scroll shell" aria-hidden="true">
+    <span>Scroll</span>
+    <span class="hero__line"></span>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: calc(100svh - var(--nav-h));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(3rem, 8vw, 5rem) 2rem;
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+    align-items: end;
+  }
+
+  @media (min-width: 900px) {
+    .hero__grid {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+    }
+  }
+
+  .hero__title {
+    font-size: clamp(3.4rem, 10vw, 7rem);
+    max-width: 10ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition:
+      transform 0.25s var(--ease),
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn--primary {
+    background: var(--accent);
+    color: #f4f1ea;
+  }
+
+  .btn--primary:hover {
+    background: var(--accent-soft);
+  }
+
+  .btn--ghost {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--ink);
+  }
+
+  .btn--ghost:hover {
+    border-color: rgba(26, 28, 24, 0.28);
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  .portrait {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .portrait__frame {
+    aspect-ratio: 4 / 5;
+    border-radius: calc(var(--radius) + 0.35rem);
+    background:
+      linear-gradient(160deg, rgba(31, 79, 69, 0.18), transparent 45%),
+      linear-gradient(20deg, #cfc9bc, #ebe7df 60%, #d7d1c4);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    display: grid;
+    place-content: center;
+    text-align: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .portrait__frame::after {
+    content: "";
+    position: absolute;
+    inset: 1rem;
+    border: 1px solid rgba(26, 28, 24, 0.08);
+    border-radius: var(--radius);
+    pointer-events: none;
+  }
+
+  .portrait__mark {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    color: var(--accent);
+    letter-spacing: -0.04em;
+  }
+
+  .portrait__note {
+    margin: 0;
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .portrait__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .hero__scroll {
+    margin-top: auto;
+    padding-top: clamp(2rem, 6vw, 4rem);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--ink-faint);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero__line {
+    width: min(8rem, 30vw);
+    height: 1px;
+    background: linear-gradient(90deg, var(--ink-faint), transparent);
+    transform-origin: left center;
+    animation: draw 2.4s var(--ease) infinite;
+  }
+
+  @keyframes draw {
+    0%,
+    100% {
+      transform: scaleX(0.35);
+      opacity: 0.4;
+    }
+    50% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+</style>

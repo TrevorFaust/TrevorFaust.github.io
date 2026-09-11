@@ -1,0 +1,90 @@
+---
+import { site } from "../data/site";
+---
+
+<header class="nav">
+  <div class="shell nav__inner">
+    <a class="nav__brand" href="#top">{site.name}</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="nav__cta" href={site.links.linkedin} target="_blank" rel="noopener noreferrer">
+      LinkedIn
+    </a>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--nav-h);
+    backdrop-filter: blur(14px);
+    background: rgba(230, 227, 219, 0.78);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav__inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .nav__brand {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .nav__links {
+    display: none;
+    gap: 1.75rem;
+  }
+
+  .nav__links a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .nav__links a:hover {
+    color: var(--ink);
+  }
+
+  .nav__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--bg);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition:
+      transform 0.25s var(--ease),
+      background 0.2s ease;
+  }
+
+  .nav__cta:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  @media (min-width: 768px) {
+    .nav__links {
+      display: flex;
+    }
+  }
+</style>

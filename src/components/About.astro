@@ -1,0 +1,107 @@
+---
+import { about } from "../data/site";
+---
+
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="shell about__grid">
+    <div class="about__media reveal">
+      <div class="about__photo" role="img" aria-label="Portrait placeholder">
+        <span>Photo placeholder</span>
+      </div>
+      <ul class="about__skills">
+        {
+          about.skills.map((skill) => (
+            <li>{skill}</li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="about__copy">
+      <p class="section-label reveal">About</p>
+      <h2 id="about-title" class="display about__title reveal reveal-delay-1">
+        Insights people<br />actually use.
+      </h2>
+      <p class="about__lead reveal reveal-delay-2">{about.lead}</p>
+      {
+        about.body.map((paragraph, index) => (
+          <p class={`about__text reveal reveal-delay-${Math.min(index + 2, 3)}`}>{paragraph}</p>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  @media (min-width: 900px) {
+    .about__grid {
+      grid-template-columns: 0.9fr 1.1fr;
+      align-items: start;
+    }
+  }
+
+  .about__photo {
+    aspect-ratio: 5 / 6;
+    border-radius: calc(var(--radius) + 0.25rem);
+    border: 1px dashed rgba(26, 28, 24, 0.25);
+    background:
+      linear-gradient(145deg, rgba(31, 79, 69, 0.12), transparent 40%),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(26, 28, 24, 0.03),
+        rgba(26, 28, 24, 0.03) 8px,
+        transparent 8px,
+        transparent 16px
+      ),
+      #ddd7cb;
+    display: grid;
+    place-items: center;
+    color: var(--ink-faint);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+
+  .about__skills {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .about__skills li {
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .about__title {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+  }
+
+  .about__lead {
+    margin: 1.4rem 0 0;
+    font-size: clamp(1.15rem, 2.2vw, 1.35rem);
+    font-weight: 500;
+    color: var(--ink);
+    max-width: 36rem;
+  }
+
+  .about__text {
+    margin: 1.15rem 0 0;
+    color: var(--ink-soft);
+    max-width: 40rem;
+  }
+</style>

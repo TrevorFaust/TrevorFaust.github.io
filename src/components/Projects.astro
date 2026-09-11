@@ -1,0 +1,199 @@
+---
+import { projects } from "../data/site";
+---
+
+<section class="section projects" id="projects" aria-labelledby="projects-title">
+  <div class="shell">
+    <div class="projects__intro reveal">
+      <p class="section-label">Selected work</p>
+      <h2 id="projects-title" class="display projects__title">
+        Products I built<br />end to end.
+      </h2>
+      <p class="lead">
+        From live sports platforms to personal tooling — scrape, structure, score, and ship.
+      </p>
+    </div>
+
+    <ol class="project-list">
+      {
+        projects.map((project, index) => (
+          <li class={`project reveal reveal-delay-${Math.min(index, 3)}`}>
+            <div class="project__index" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </div>
+            <div class="project__body">
+              <div class="project__heading">
+                <h3 class="project__name">{project.title}</h3>
+                {project.featured && <span class="project__badge">Featured</span>}
+              </div>
+              <p class="project__blurb">{project.blurb}</p>
+              <p class="project__detail">{project.detail}</p>
+              <ul class="project__tags">
+                {project.tags.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            </div>
+            <div class="project__links">
+              <a class="project__link" href={project.href} target="_blank" rel="noopener noreferrer">
+                {project.href.includes("github.com") ? "View repo" : "Open live"}
+                <span aria-hidden="true">↗</span>
+              </a>
+              {project.repo !== project.href && (
+                <a class="project__link project__link--muted" href={project.repo} target="_blank" rel="noopener noreferrer">
+                  GitHub
+                </a>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .projects__title {
+    font-size: clamp(2.4rem, 6vw, 4.25rem);
+    max-width: 12ch;
+  }
+
+  .project-list {
+    list-style: none;
+    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .project {
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    border: 1px solid var(--line);
+    border-radius: calc(var(--radius) + 0.15rem);
+    background: rgba(255, 252, 247, 0.42);
+    backdrop-filter: blur(8px);
+    transition:
+      transform 0.35s var(--ease),
+      border-color 0.25s ease,
+      background 0.25s ease,
+      box-shadow 0.35s var(--ease);
+  }
+
+  .project:hover {
+    transform: translateY(-3px);
+    border-color: rgba(31, 79, 69, 0.28);
+    background: rgba(255, 252, 247, 0.72);
+    box-shadow: var(--shadow);
+  }
+
+  @media (min-width: 860px) {
+    .project {
+      grid-template-columns: 4.5rem 1fr auto;
+      align-items: start;
+      gap: 1.75rem;
+    }
+  }
+
+  .project__index {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .project__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .project__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 3vw, 2rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+  }
+
+  .project__badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.6rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-wash);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .project__blurb {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  .project__detail {
+    margin: 0.7rem 0 0;
+    color: var(--ink-soft);
+    max-width: 48rem;
+  }
+
+  .project__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+  }
+
+  .project__tags li {
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .project__links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  @media (min-width: 860px) {
+    .project__links {
+      align-items: flex-end;
+      min-width: 8.5rem;
+      padding-top: 0.2rem;
+    }
+  }
+
+  .project__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .project__link:hover {
+    color: var(--accent-soft);
+  }
+
+  .project__link--muted {
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+</style>
