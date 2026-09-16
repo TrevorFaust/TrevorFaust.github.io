@@ -1,11 +1,13 @@
 ---
+import { Image } from "astro:assets";
 import { site } from "../data/site";
+import heroPortrait from "../assets/portrait-hero.png";
 ---
 
 <section class="hero" id="top" aria-labelledby="hero-title">
   <div class="shell hero__grid">
     <div class="hero__copy">
-      <p class="section-label reveal">Seattle · Data · Product</p>
+      <p class="section-label reveal">Data analytics in sports and tech</p>
       <h1 id="hero-title" class="display hero__title reveal reveal-delay-1">
         {site.name}
       </h1>
@@ -16,23 +18,23 @@ import { site } from "../data/site";
       </div>
     </div>
 
-    <aside class="hero__aside reveal reveal-delay-2" aria-label="Portrait placeholder">
+    <aside class="hero__aside reveal reveal-delay-2">
       <div class="portrait">
         <div class="portrait__frame">
-          <span class="portrait__mark">TF</span>
-          <p class="portrait__note">Photo coming soon</p>
+          <Image
+            class="portrait__image"
+            src={heroPortrait}
+            alt={`${site.name} on the beach at sunset`}
+            widths={[360, 540, 720]}
+            sizes="(min-width: 900px) 28vw, 80vw"
+          />
         </div>
         <div class="portrait__meta">
-          <span>Open to roles</span>
-          <span>Sports · Technology</span>
+          <span class="portrait__label">Interests</span>
+          <span class="portrait__interests">Sports · Technology · Sustainability · Energy</span>
         </div>
       </div>
     </aside>
-  </div>
-
-  <div class="hero__scroll shell" aria-hidden="true">
-    <span>Scroll</span>
-    <span class="hero__line"></span>
   </div>
 </section>
 
@@ -120,83 +122,48 @@ import { site } from "../data/site";
   .portrait__frame {
     aspect-ratio: 4 / 5;
     border-radius: calc(var(--radius) + 0.35rem);
-    background:
-      linear-gradient(160deg, rgba(31, 79, 69, 0.18), transparent 45%),
-      linear-gradient(20deg, #cfc9bc, #ebe7df 60%, #d7d1c4);
+    background: #cfc9bc;
     border: 1px solid var(--line);
     box-shadow: var(--shadow);
-    display: grid;
-    place-content: center;
-    text-align: center;
-    gap: 0.75rem;
     position: relative;
     overflow: hidden;
+  }
+
+  .portrait__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 22%;
   }
 
   .portrait__frame::after {
     content: "";
     position: absolute;
-    inset: 1rem;
-    border: 1px solid rgba(26, 28, 24, 0.08);
+    inset: 0.85rem;
+    border: 1px solid rgba(244, 241, 234, 0.28);
     border-radius: var(--radius);
     pointer-events: none;
   }
 
-  .portrait__mark {
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 8vw, 4.5rem);
-    color: var(--accent);
-    letter-spacing: -0.04em;
-  }
-
-  .portrait__note {
-    margin: 0;
-    color: var(--ink-faint);
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
   .portrait__meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    display: grid;
+    gap: 0.3rem;
     color: var(--ink-faint);
-    font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 
-  .hero__scroll {
-    margin-top: auto;
-    padding-top: clamp(2rem, 6vw, 4rem);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--ink-faint);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+  .portrait__label {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
   }
 
-  .hero__line {
-    width: min(8rem, 30vw);
-    height: 1px;
-    background: linear-gradient(90deg, var(--ink-faint), transparent);
-    transform-origin: left center;
-    animation: draw 2.4s var(--ease) infinite;
-  }
-
-  @keyframes draw {
-    0%,
-    100% {
-      transform: scaleX(0.35);
-      opacity: 0.4;
-    }
-    50% {
-      transform: scaleX(1);
-      opacity: 1;
-    }
+  .portrait__interests {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
   }
 </style>

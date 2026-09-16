@@ -1,10 +1,14 @@
 ---
 import { site } from "../data/site";
+import Logo from "./Logo.astro";
 ---
 
 <header class="nav">
   <div class="shell nav__inner">
-    <a class="nav__brand" href="#top">{site.name}</a>
+    <a class="nav__brand" href="#top" aria-label={`${site.name} home`}>
+      <Logo class="nav__mark" size={36} />
+      <span class="nav__initials">{site.initials}</span>
+    </a>
     <nav class="nav__links" aria-label="Primary">
       <a href="#projects">Projects</a>
       <a href="#about">About</a>
@@ -36,11 +40,36 @@ import { site } from "../data/site";
   }
 
   .nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 2.75rem;
+    color: var(--accent);
+    text-decoration: none;
+    border-radius: 0.7rem;
+    transition: color 0.2s ease;
+  }
+
+  .nav__brand:hover {
+    color: var(--accent-soft);
+  }
+
+  .nav__brand:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .nav__mark {
+    display: block;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+  }
+
+  .nav__initials {
     font-family: var(--font-display);
     font-size: 1.2rem;
     font-weight: 500;
-    text-decoration: none;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.04em;
   }
 
   .nav__links {
