@@ -43,8 +43,8 @@ const contacts = [
       Find me here.<br />Pick a link.
     </h2>
     <p class="lead">
-      Reach out about data analytics roles in sports or technology, or to talk shop about
-      building things people use.
+      Reach out about data analytics roles in sports, technology, or energy and
+      sustainability, or to talk shop about building things people use.
     </p>
 
     <div class="contact__links">
@@ -84,7 +84,7 @@ const contacts = [
     padding: clamp(2rem, 5vw, 3.5rem);
     border-radius: calc(var(--radius) + 0.5rem);
     background:
-      linear-gradient(145deg, rgba(31, 79, 69, 0.12), transparent 40%),
+      linear-gradient(145deg, rgba(var(--accent-rgb), 0.12), transparent 40%),
       var(--bg-elevated);
     border: 1px solid var(--line);
     box-shadow: var(--shadow);
@@ -119,7 +119,7 @@ const contacts = [
   }
 
   .contact__card:hover {
-    border-color: rgba(31, 79, 69, 0.3);
+    border-color: rgba(var(--accent-rgb), 0.3);
     background: rgba(255, 252, 247, 0.9);
   }
 

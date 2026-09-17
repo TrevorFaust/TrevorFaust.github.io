@@ -3,10 +3,11 @@ export const site = {
   initials: "TF",
   title: "Trevor Faust | Data Analytics & Product Building",
   description:
-    "Data professional in Seattle turning messy data into decisions people act on. Sports analytics, product tools, and end-to-end builds.",
+    "Seattle data professional who builds sports tools and side projects. I turn messy data into things people can act on.",
   location: "Seattle, WA",
   email: "trevorfaus27@gmail.com",
-  tagline: "I turn messy data into decisions people act on.",
+  tagline:
+    "I'm an engineer who can't leave an inefficient process alone. Give me a tedious or broken process and I'll design and ship a real system for it, from large-scale sports data platforms to job search automation.",
   links: {
     linkedin: "https://www.linkedin.com/in/trevor-faust-000t",
     substack: "https://substack.com/@trevorfaust",
@@ -19,67 +20,63 @@ export const projects = [
     slug: "draftdna",
     title: "DraftDNA",
     blurb:
-      "A fantasy football platform that puts live drafts, rankings, and league intel in one place so you can make the pick faster.",
+      "A fantasy football platform that puts live drafts, rankings, and league intel in one place to help you run a smoother season.",
     detail:
-      "React, TypeScript, Python, and PostgreSQL on 200M+ NFL records, with a 150-source pipeline feeding weekly coverage.",
+      "A PostgreSQL database that hosts 200M+ NFL records, with a 150-source pipeline feeding weekly coverage, built on React, TypeScript, and Python.",
     href: "https://draftdna.com",
     repo: "https://github.com/TrevorFaust/DraftDNA",
     tags: ["React", "Python", "Supabase", "Tailwind", "Realtime"],
-    featured: true,
   },
   {
     slug: "scoutdna",
     title: "ScoutDNA Newsletter",
     blurb: "Weekly news for all 32 NFL clubs, so you don't have to chase thirty-two feeds.",
     detail:
-      "A newsletter that pulls leaguewide activity into one briefing with scouting notes and daily signals.",
-    href: "https://substack.com/@trevorfaust",
+      "A newsletter that pulls leaguewide activity into one briefing for each team with scouting notes, daily signals, and important updates for the upcoming week's matchup.",
+    href: "https://scoutdna-news.vercel.app/",
     repo: "https://github.com/TrevorFaust/ScoutDNA_Newsletter",
     tags: ["RAG", "Clustering", "Scraping", "LLM compose", "Supabase"],
-    featured: true,
   },
   {
     slug: "job-search",
-    title: "Job Search",
+    title: "Hustle Hunter",
     blurb:
-      "A job-hunt workflow that turns your experience into resumes, cover letters, follow-ups, and interview prep.",
+      "A site that helps you find a job, then tailors your resumes, cover letters, follow-ups, and interview prep all from the experience you provide it.",
     detail:
-      "The more you feed it, the better it knows your background: scrape, structure, score, and ship a faster search.",
-    href: "https://github.com/TrevorFaust/Job_Search",
+      "The more you feed it, the better it knows your background and the more it shapes the search around you.",
+    href: "https://hustlehunter.vercel.app/",
     repo: "https://github.com/TrevorFaust/Job_Search",
     tags: ["LLM", "APIs", "RSS", "Automation", "Supabase"],
-    featured: false,
   },
   {
     slug: "apartment-hunt",
-    title: "Apartment Hunt",
-    blurb: "Finds off-market apartments that match what you asked for.",
+    title: "Lease Locator",
+    blurb: "Finds apartments and houses to lease based on the preferences you set.",
     detail:
-      "Next.js tooling with Playwright scrapers and fit scoring, pulling listings that never show up on the usual sites.",
-    href: "https://github.com/TrevorFaust/Apartment_Search",
+      "It catches hidden and niche listings that slip through the cracks of the usual rental sites.",
+    href: "https://leaselocator.vercel.app/",
     repo: "https://github.com/TrevorFaust/Apartment_Search",
     tags: ["Playwright", "Scoring", "Resend", "Supabase"],
-    featured: false,
   },
   {
     slug: "fantasy-league-blog",
-    title: "Fantasy League Blog",
-    blurb: "Power rankings and season recaps for my Seattle fantasy league.",
+    title: "Seattle SeaSquacks Fantasy Football Blog",
+    blurb:
+      "My fantasy football league and blog for friends, with power rankings, season recaps, and my personal opinions about their chances to win a championship.",
     detail:
-      "Moved off Wix onto Next.js and Vercel. Home hosts the live season. Past years live as full recaps with the original writeups.",
-    href: "https://fantasy-league-blog.vercel.app",
+      "It runs on Next.js and TypeScript, with the live season on the home page and previous years kept as full recaps with the original writeups.",
+    href: "https://seattleseasquawks-practicesquad.vercel.app/",
     repo: "https://github.com/TrevorFaust/fantasy-league-blog",
     tags: ["Next.js", "Vercel", "TypeScript"],
-    featured: true,
   },
 ] as const;
 
 export const about = {
-  lead: "I build data work that people pick up and use.",
+  lead: "I like turning messy data into things people can act on.",
   body: [
-    "At Kennametal I work across process engineering, product analytics, and sales enablement. I cut $2M from production with Excel/VBA scheduling, structured 500+ product datasets, and built Power BI dashboards for regional pipeline and retention. SQL, Power BI, and Excel are the daily stack. Python is for the problems that outgrow a spreadsheet.",
-    "Off the clock I build products from UI through backend because I want to own the full thing. Scrape, structure, score, and ship something I would use.",
-    "I'm looking for my next data analytics role in sports or technology.",
+    "At Kennametal I work across process engineering, product analytics, and sales enablement. I cut $2M from production with Excel/VBA scheduling, structured 500+ product datasets, and I use Power BI dashboards that help teams track product and regional performance. SQL, Power BI, and Excel are the daily stack. Python is for the problems that outgrow a spreadsheet.",
+    "Off the clock I build products from UI through backend because I want to own the full thing. The process is usually scrape, structure, and ship something I would use myself. DraftDNA, Hustle Hunter, Lease Locator, and SeaSquacks all started that way. I love taking a messy source, modeling it, and putting an interface on it so people actively use it.",
+    "I'm looking for my next data analytics role in sports, technology, or energy and sustainability.",
   ],
   skills: [
     "SQL",
@@ -90,5 +87,6 @@ export const about = {
     "Next.js",
     "PostgreSQL / Supabase",
     "Playwright",
+    "Tailwind",
   ],
 };
