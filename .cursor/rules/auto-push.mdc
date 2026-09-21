@@ -1,0 +1,16 @@
+---
+description: Commit and push leftover site changes when Cursor work is done
+alwaysApply: true
+---
+
+# Push local site changes
+
+When a task changes this repo and the work is finished enough to leave, commit the relevant files and push to `origin` on the current branch.
+
+Do this even if the user does not say "commit" or "push". The usual miss is that the work is done locally and never reaches GitHub Pages.
+
+- Use a one-sentence commit message in this repo's style (why, not a file list).
+- Do not commit `.env`, credentials, secrets, `node_modules`, `dist`, or `.astro`.
+- Do not force-push. Do not amend a commit unless the user asked and the usual amend rules allow it.
+- Skip if the user says to keep it local, or if a merge/rebase is in progress.
+- If there are already local commits that are not on origin, push those too.
