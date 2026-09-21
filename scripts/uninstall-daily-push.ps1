@@ -1,13 +1,8 @@
-# Removes the end-of-day push scheduled task.
+# Removes the user-level daily push that covers this repo and the other projects.
 
 $ErrorActionPreference = "Stop"
-$TaskName = "TrevorFaust.github.io Daily Push"
-
-$task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-if (-not $task) {
-  Write-Host "No scheduled task named '$TaskName' is registered."
-  exit 0
+$UserUninstall = Join-Path $env:USERPROFILE ".cursor\auto-push\uninstall.ps1"
+if (-not (Test-Path $UserUninstall)) {
+  throw "Missing user-level uninstaller: $UserUninstall"
 }
-
-Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
-Write-Host "Removed scheduled task '$TaskName'."
+& $UserUninstall
