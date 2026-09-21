@@ -2,7 +2,6 @@
 import { Image } from "astro:assets";
 import { site } from "../data/site";
 import logo from "../assets/logo-tf.png";
-import VersionSwitch from "./VersionSwitch.astro";
 ---
 
 <header class="nav">
@@ -15,12 +14,9 @@ import VersionSwitch from "./VersionSwitch.astro";
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
     </nav>
-    <div class="nav__end">
-      <VersionSwitch current="original" />
-      <a class="nav__cta" href={site.links.linkedin} target="_blank" rel="noopener noreferrer">
-        LinkedIn
-      </a>
-    </div>
+    <a class="nav__cta" href={site.links.linkedin} target="_blank" rel="noopener noreferrer">
+      LinkedIn
+    </a>
   </div>
 </header>
 
@@ -85,14 +81,8 @@ import VersionSwitch from "./VersionSwitch.astro";
     color: var(--ink);
   }
 
-  .nav__end {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-
   .nav__cta {
-    display: none;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 2.5rem;
@@ -116,10 +106,6 @@ import VersionSwitch from "./VersionSwitch.astro";
   @media (min-width: 768px) {
     .nav__links {
       display: flex;
-    }
-
-    .nav__cta {
-      display: inline-flex;
     }
   }
 </style>
