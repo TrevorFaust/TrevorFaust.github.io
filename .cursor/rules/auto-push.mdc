@@ -1,16 +1,25 @@
 ---
-description: Commit and push leftover site changes when Cursor work is done
+description: Push finished site work to GitHub main and update the README for major changes
 alwaysApply: true
 ---
 
-# Push local site changes
+# Push local site changes to main
 
-When a task changes this repo and the work is finished enough to leave, commit the relevant files and push to `origin` on the current branch.
+When a task changes this repo and the work is finished enough to leave, get it onto `origin/main`. That is what rebuilds https://trevorfaust.github.io.
 
-Do this even if the user does not say "commit" or "push". The usual miss is that the work is done locally and never reaches GitHub Pages.
+Do this even if the user does not say "commit" or "push".
+
+1. Stay on `main`. If you are not on `main`, stop and say so.
+2. If the change is **major**, update `README.md` so it matches what will be live (featured projects, new pages or sections, positioning, or how the site is built and deployed).
+3. If the change is **minor**, leave the README alone.
+4. Commit the relevant files and run `git push origin main`.
+
+Major: add, remove, rename, hide, or unhide a featured project; add a page or section; rewrite the about, tagline, or positioning; change the stack or deploy path.
+
+Minor: typos, spacing, color tweaks, small copy polish, or internal script/hook edits that do not change how someone uses the site.
 
 - Use a one-sentence commit message in this repo's style (why, not a file list).
 - Do not commit `.env`, credentials, secrets, `node_modules`, `dist`, or `.astro`.
 - Do not force-push. Do not amend a commit unless the user asked and the usual amend rules allow it.
 - Skip if the user says to keep it local, or if a merge/rebase is in progress.
-- If there are already local commits that are not on origin, push those too.
+- If `main` already has local commits that are not on origin, push those too.

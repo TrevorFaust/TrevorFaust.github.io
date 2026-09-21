@@ -94,6 +94,11 @@ if (-not $dirty -and $hasUpstream -and $ahead -eq 0) {
   exit 0
 }
 
+if ($dirty -and $branch -ne "main") {
+  Write-Log "Skipping commit: leftover work is on $branch, not main. The live site only updates from main."
+  exit 0
+}
+
 if ($dirty) {
   $secretHits = @()
   foreach ($line in ($status.Text -split "\r?\n")) {
@@ -138,24 +143,32 @@ if ($dirty) {
 }
 
 if ($DryRun) {
-  if (-not $hasUpstream) {
-    Write-Log "Dry run: would push $branch and set upstream on origin."
+  if ($branch -ne "main") {
+    Write-Log "Dry run: would skip push because leftover work is on $branch, not main."
+  }
+  elseif (-not $hasUpstream) {
+    Write-Log "Dry run: would push main and set upstream on origin."
   }
   elseif ($dirty -or $ahead -gt 0) {
     $pending = $ahead
     if ($dirty) { $pending = [Math]::Max($ahead, 1) }
-    Write-Log "Dry run: would push $pending commit(s) on $branch to origin."
+    Write-Log "Dry run: would push $pending commit(s) to origin/main."
   }
   exit 0
 }
 
+if ($branch -ne "main") {
+  Write-Log "Skipping push: leftover work is on $branch, not main. The live site only updates from main."
+  exit 0
+}
+
 if (-not $hasUpstream) {
-  Write-Log "Pushing $branch and setting upstream to origin."
-  $push = Invoke-Git push -u origin HEAD
+  Write-Log "Pushing main and setting upstream to origin."
+  $push = Invoke-Git push -u origin main
 }
 elseif ($ahead -gt 0) {
-  Write-Log "Pushing $ahead commit(s) on $branch to origin."
-  $push = Invoke-Git push
+  Write-Log "Pushing $ahead commit(s) to origin/main."
+  $push = Invoke-Git push origin main
 }
 else {
   Write-Log "Nothing to push."
