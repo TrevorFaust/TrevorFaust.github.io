@@ -1,0 +1,111 @@
+---
+import { editorial, site } from "../../data/site";
+
+const [firstName, lastName] = site.name.split(" ");
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="ed-shell hero__inner">
+    <p class="ed-kicker hero__rule reveal">{editorial.kicker}</p>
+    <h1 id="hero-title" class="hero__title">
+      <span class="hero__line">
+        <span class="hero__word">{firstName}</span>
+      </span>
+      <span class="hero__line">
+        <span class="hero__word hero__word--shift">{lastName}</span>
+      </span>
+    </h1>
+    <div class="hero__bottom reveal reveal-delay-2">
+      <p class="hero__tagline">{site.tagline}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+    display: flex;
+    align-items: flex-end;
+    padding: calc(var(--ed-nav) + 1.5rem) 0 2.5rem;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 12% 8% auto auto;
+    width: min(42vw, 28rem);
+    height: min(42vw, 28rem);
+    border: 1px solid var(--ed-line);
+    border-radius: 50%;
+    pointer-events: none;
+    mask-image: linear-gradient(135deg, transparent 20%, #000 80%);
+  }
+
+  .hero__inner {
+    width: 100%;
+  }
+
+  .hero__rule {
+    margin-bottom: 1.5rem;
+  }
+
+  .hero__title {
+    margin: 0;
+    font-size: clamp(3.1rem, 11.5vw, 7.6rem);
+    font-weight: 600;
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+  }
+
+  .hero__line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+
+  .hero__word {
+    display: block;
+    animation: rise 1.05s var(--ed-ease) both;
+  }
+
+  .hero__word--shift {
+    animation-delay: 0.12s;
+    margin-left: 0.12em;
+    color: color-mix(in srgb, var(--ed-ink) 78%, var(--ed-accent));
+  }
+
+  .hero__bottom {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: clamp(1.4rem, 4vw, 2.4rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--ed-line);
+  }
+
+  .hero__tagline {
+    margin: 0;
+    max-width: 38rem;
+    color: var(--ed-ink-soft);
+    font-size: clamp(1.02rem, 1.8vw, 1.18rem);
+    line-height: 1.65;
+  }
+
+  @keyframes rise {
+    from {
+      transform: translateY(108%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__word,
+    .hero__word--shift {
+      animation: none;
+    }
+  }
+</style>

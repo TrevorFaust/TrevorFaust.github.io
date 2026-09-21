@@ -1,0 +1,173 @@
+---
+import { site } from "../../data/site";
+import VersionSwitch from "../VersionSwitch.astro";
+---
+
+<header class="masthead">
+  <div class="ed-shell masthead__inner">
+    <a class="masthead__brand" href="#top">{site.initials}</a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="masthead__end">
+      <p class="masthead__status">
+        <span class="masthead__pulse" aria-hidden="true"></span>
+        <time id="local-time" datetime="">
+          <span class="masthead__place">Seattle · </span>
+          <span id="local-time-value">--:--</span>
+        </time>
+      </p>
+      <VersionSwitch current="editorial" />
+    </div>
+  </div>
+</header>
+
+<script>
+  const el = document.getElementById("local-time");
+  const value = document.getElementById("local-time-value");
+
+  const tick = () => {
+    if (!(el instanceof HTMLTimeElement) || !value) return;
+    const now = new Date();
+    const time = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Los_Angeles",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(now);
+    value.textContent = time;
+    el.dateTime = now.toISOString();
+  };
+
+  tick();
+  setInterval(tick, 30000);
+</script>
+
+<style>
+  .masthead {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    min-height: var(--ed-nav);
+    background: color-mix(in srgb, var(--ed-bg) 78%, transparent);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--ed-line);
+  }
+
+  .masthead__inner {
+    min-height: var(--ed-nav);
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.75rem;
+    padding-block: 0.35rem;
+  }
+
+  .masthead__brand {
+    justify-self: start;
+    font-family: var(--ed-mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-decoration: none;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .masthead__nav {
+    display: flex;
+    order: 3;
+    flex: 1 0 100%;
+    gap: 1.35rem;
+    padding-bottom: 0.15rem;
+  }
+
+  .masthead__nav a {
+    text-decoration: none;
+    color: var(--ed-ink-soft);
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .masthead__nav a:hover {
+    color: var(--ed-ink);
+  }
+
+  .masthead__end {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+    gap: 0.85rem;
+  }
+
+  .masthead__status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.55rem;
+    margin: 0;
+    color: var(--ed-ink-soft);
+    font-family: var(--ed-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    min-height: 2.75rem;
+    white-space: nowrap;
+  }
+
+  .masthead__place {
+    display: none;
+  }
+
+  .masthead__pulse {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--ed-live);
+    box-shadow: 0 0 0 0 rgba(156, 186, 122, 0.7);
+    animation: pulse 2.4s ease-out infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(156, 186, 122, 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 0.45rem rgba(156, 186, 122, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(156, 186, 122, 0);
+    }
+  }
+
+  @media (min-width: 720px) {
+    .masthead__place {
+      display: inline;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .masthead {
+      height: var(--ed-nav);
+    }
+
+    .masthead__inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      flex-wrap: nowrap;
+      padding-block: 0;
+    }
+
+    .masthead__nav {
+      order: 0;
+      flex: 0 0 auto;
+      justify-self: center;
+      padding-bottom: 0;
+      gap: 1.5rem;
+    }
+  }
+</style>

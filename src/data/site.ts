@@ -73,6 +73,43 @@ export const projects = [
   },
 ] as const;
 
+export const editorial = {
+  kicker: "builder & automation engineer",
+  hello: "Come say hi",
+  categories: {
+    draftdna: "Live product",
+    scoutdna: "Intel pipeline",
+    "job-search": "Automation",
+    "apartment-hunt": "Housing",
+    "fantasy-league-blog": "Community",
+  },
+  flagships: ["draftdna", "scoutdna"] as const,
+  capabilities: {
+    draftdna: [
+      { label: "Persistent", detail: "200M+ NFL records in Postgres" },
+      { label: "Modular", detail: "Live drafts, rankings, and league intel" },
+      { label: "Scalable", detail: "150-source pipeline for weekly coverage" },
+    ],
+    scoutdna: [
+      { label: "Coverage", detail: "All 32 clubs in one weekly briefing" },
+      { label: "Extracted", detail: "Scouting notes, daily signals, matchup updates" },
+      { label: "Composed", detail: "RAG, clustering, and LLM writeup" },
+    ],
+  },
+  specs: {
+    draftdna: {
+      stack: "React, TypeScript, Python, Supabase",
+      scale: "200M+ NFL records",
+      status: "Live",
+    },
+    scoutdna: {
+      stack: "RAG, clustering, scraping, Supabase",
+      scale: "32 clubs, weekly",
+      status: "Live",
+    },
+  },
+};
+
 export const about = {
   lead: "I like turning messy data into things people can act on.",
   body: [

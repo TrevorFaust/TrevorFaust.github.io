@@ -6,6 +6,8 @@ Personal site for projects, about, and contact. Live at https://trevorfaust.gith
 
 The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
 
+An editorial alternate lives at `/alt`. Use the Original / Editorial toggle in the corner to switch. Same content, different layout: type-led hero, live Seattle time, flagship project deep-dives, and a note-style about. The original homepage stays the public version.
+
 ## Local development
 
 ```bash

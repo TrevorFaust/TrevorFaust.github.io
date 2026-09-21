@@ -1,0 +1,69 @@
+---
+interface Props {
+  current: "original" | "editorial";
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="version-switch" aria-label="Site design">
+  <a
+    class:list={["version-switch__option", { "is-active": current === "original" }]}
+    href="/"
+    aria-current={current === "original" ? "page" : undefined}
+  >
+    Original
+  </a>
+  <a
+    class:list={["version-switch__option", { "is-active": current === "editorial" }]}
+    href="/alt/"
+    aria-current={current === "editorial" ? "page" : undefined}
+  >
+    Editorial
+  </a>
+</nav>
+
+<style>
+  .version-switch {
+    display: flex;
+    flex-shrink: 0;
+    padding: 0.18rem;
+    border-radius: 999px;
+    font-family: system-ui, sans-serif;
+    background: #161714;
+    border: 1px solid rgba(241, 236, 227, 0.16);
+  }
+
+  .version-switch__option {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    min-width: 5.1rem;
+    padding: 0 0.7rem;
+    border-radius: 999px;
+    color: #cfc9bc;
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .version-switch__option:hover {
+    color: #f3efe6;
+  }
+
+  .version-switch__option.is-active {
+    background: #f3efe6;
+    color: #161714;
+  }
+
+  .version-switch__option:focus-visible {
+    outline: 2px solid #d4a054;
+    outline-offset: 3px;
+  }
+</style>

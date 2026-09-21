@@ -1,0 +1,146 @@
+---
+import { Image } from "astro:assets";
+import { about, site } from "../../data/site";
+import aboutPortrait from "../../assets/portrait-about.png";
+---
+
+<section class="ed-section note" id="about" aria-labelledby="about-title">
+  <div class="ed-shell note__grid">
+    <div class="note__copy">
+      <p class="ed-kicker reveal">About</p>
+      <h2 id="about-title" class="note__title reveal reveal-delay-1">A note.</h2>
+      <p class="note__lead reveal reveal-delay-2">{about.lead}</p>
+      {
+        about.body.map((paragraph, index) => (
+          <p class={`note__text reveal reveal-delay-${Math.min(index + 2, 3)}`}>{paragraph}</p>
+        ))
+      }
+      <p class="note__sign reveal">
+        {site.name}
+        <span>{site.location}</span>
+      </p>
+      <ul class="note__skills">
+        {about.skills.map((skill) => <li>{skill}</li>)}
+      </ul>
+    </div>
+
+    <div class="note__media reveal">
+      <div class="note__photo">
+        <Image
+          class="note__image"
+          src={aboutPortrait}
+          alt={`${site.name} sitting on a rock in the mountains`}
+          widths={[360, 540, 720]}
+          sizes="(min-width: 900px) 28vw, 80vw"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .note__grid {
+    display: grid;
+    gap: clamp(2rem, 6vw, 4.5rem);
+  }
+
+  .note__photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: #2a2823;
+    border: 1px solid var(--ed-line);
+  }
+
+  .note__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 78%;
+    filter: grayscale(0.18) contrast(1.05);
+  }
+
+  .note__title {
+    margin: 0.65rem 0 0;
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+  }
+
+  .note__lead {
+    margin: 1.5rem 0 0;
+    max-width: 34rem;
+    font-family: var(--ed-serif);
+    font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  .note__text {
+    margin: 1.15rem 0 0;
+    max-width: 38rem;
+    color: var(--ed-ink-soft);
+    font-family: var(--ed-serif);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .note__sign {
+    display: grid;
+    gap: 0.15rem;
+    margin: 2rem 0 0;
+    font-family: var(--ed-serif);
+    font-style: italic;
+    font-size: 1.05rem;
+  }
+
+  .note__sign span {
+    font-style: normal;
+    font-family: var(--ed-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ed-ink-faint);
+  }
+
+  .note__skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 1.75rem 0 0;
+    padding: 0;
+  }
+
+  .note__skills li {
+    color: var(--ed-ink-faint);
+    font-family: var(--ed-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+
+  .note__skills li:not(:last-child)::after {
+    content: "·";
+    margin-left: 0.45rem;
+  }
+
+  @media (min-width: 900px) {
+    .note__grid {
+      grid-template-columns: 0.72fr 1.28fr;
+      align-items: start;
+    }
+
+    .note__media {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .note__copy {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+</style>
