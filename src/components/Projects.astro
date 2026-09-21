@@ -15,6 +15,8 @@ const projectIcons: Record<(typeof projects)[number]["slug"], ImageMetadata> = {
   "apartment-hunt": leaselocatorIcon,
   "fantasy-league-blog": fantasyBlogIcon,
 };
+
+const visibleProjects = projects.filter((project) => !("hidden" in project && project.hidden));
 ---
 
 <section class="section projects" id="projects" aria-labelledby="projects-title">
@@ -31,7 +33,7 @@ const projectIcons: Record<(typeof projects)[number]["slug"], ImageMetadata> = {
 
     <ol class="project-list">
       {
-        projects.map((project, index) => {
+        visibleProjects.map((project, index) => {
           const icon = projectIcons[project.slug];
           return (
           <li class={`project reveal reveal-delay-${Math.min(index, 3)}`}>

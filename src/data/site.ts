@@ -68,6 +68,8 @@ export const projects = [
     href: "https://seattleseasquawks-practicesquad.vercel.app/",
     repo: "https://github.com/TrevorFaust/fantasy-league-blog",
     tags: ["Next.js", "Vercel", "TypeScript"],
+    // Hidden from the public site. Set to false to show it again.
+    hidden: true,
   },
 ] as const;
 
@@ -75,7 +77,7 @@ export const about = {
   lead: "I like turning messy data into things people can act on.",
   body: [
     "At Kennametal I work across process engineering, product analytics, and sales enablement. I cut $2M from production with Excel/VBA scheduling, structured 500+ product datasets, and I use Power BI dashboards that help teams track product and regional performance. SQL, Power BI, and Excel are the daily stack. Python is for the problems that outgrow a spreadsheet.",
-    "Off the clock I build products from UI through backend because I want to own the full thing. The process is usually scrape, structure, and ship something I would use myself. DraftDNA, Hustle Hunter, Lease Locator, and SeaSquacks all started that way. I love taking a messy source, modeling it, and putting an interface on it so people actively use it.",
+    "Off the clock I build products from UI through backend because I want to own the full thing. The process is usually scrape, structure, and ship something I would use myself. DraftDNA, Hustle Hunter, and Lease Locator all started that way. I love taking a messy source, modeling it, and putting an interface on it so people actively use it.",
     "I'm looking for my next data analytics role in sports, technology, or energy and sustainability.",
   ],
   skills: [
