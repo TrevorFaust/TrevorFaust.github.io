@@ -9,7 +9,7 @@
   const live = document.querySelector<HTMLElement>("[data-hunt-live]");
 
   const clues: Record<Clue, [string, string]> = {
-    1: ["Clue 1 of 4", "Lock on. Click the target around my face."],
+    1: ["Clue 1 of 4", "Lock on. Take your shot, right on my face."],
     2: ["Clue 2 of 4", "Target down. Now find where I go off the clock."],
     3: ["Clue 3 of 4", "Time's up. Catch a ✦ as it rolls through the ribbon."],
     4: ["Clue 4 of 4 · Your fortune", "A Classified file just landed in my contact cabinet."],
@@ -108,7 +108,70 @@
     );
   };
 
-  /* Clue 2: a shot lands on the target, then the next card rises from the hit to above my head */
+  /* Only a click on my head or neck counts. Zones are fractions of the cutout image; the pixel
+     must be opaque and redder than it is green, which keeps out the transparent sky and the hoodie. */
+  let skinPixels: { data: Uint8ClampedArray; width: number; height: number } | null = null;
+
+  const readPixels = (img: HTMLImageElement) => {
+    if (skinPixels?.width === img.naturalWidth) return skinPixels;
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0);
+    skinPixels = { data: ctx.getImageData(0, 0, canvas.width, canvas.height).data, width: canvas.width, height: canvas.height };
+    return skinPixels;
+  };
+
+  const hitsSkin = (reticle: HTMLElement, event: MouseEvent) => {
+    if (event.clientX === 0 && event.clientY === 0) return true;
+    const img = reticle.parentElement?.querySelector<HTMLImageElement>("img");
+    if (!img?.naturalWidth) return true;
+    const box = img.getBoundingClientRect();
+    const scale = Math.max(box.width / img.naturalWidth, box.height / img.naturalHeight);
+    const drawnW = img.naturalWidth * scale;
+    const drawnH = img.naturalHeight * scale;
+    const u = (event.clientX - box.left - (box.width - drawnW) / 2) / drawnW;
+    const v = (event.clientY - box.top - (box.height - drawnH) / 2) / drawnH;
+
+    const inHead = ((u - 0.573) / 0.125) ** 2 + ((v - 0.244) / 0.084) ** 2 <= 1;
+    const inNeck = u >= 0.48 && u <= 0.635 && v >= 0.29 && v <= 0.355;
+    if (!inHead && !inNeck) return false;
+
+    try {
+      const pixels = readPixels(img);
+      if (!pixels) return true;
+      const x = Math.min(pixels.width - 1, Math.max(0, Math.round(u * pixels.width)));
+      const y = Math.min(pixels.height - 1, Math.max(0, Math.round(v * pixels.height)));
+      const i = (y * pixels.width + x) * 4;
+      const [r, g, , a] = pixels.data.slice(i, i + 4);
+      return a > 128 && r > g;
+    } catch {
+      return inHead;
+    }
+  };
+
+  const miss = (reticle: HTMLElement, event: MouseEvent) => {
+    const figure = reticle.parentElement;
+    if (!figure) return;
+    const f = figure.getBoundingClientRect();
+    const puff = document.createElement("i");
+    puff.className = "hunt-miss";
+    puff.style.left = px(event.clientX - f.left);
+    puff.style.top = px(event.clientY - f.top);
+    figure.append(puff);
+    play(
+      puff,
+      [
+        { opacity: 0.9, transform: "scale(0.4)" },
+        { opacity: 0, transform: "scale(1.8)" },
+      ],
+      { duration: 500, easing: "ease-out" },
+    ).then(() => puff.remove());
+  };
+
+  /* Clue 2: a shot lands on my face, leaves a dot, and the next card rises from the hit to above my head */
   const shoot = async (reticle: HTMLElement, event: MouseEvent) => {
     const figure = reticle.parentElement;
     if (!figure) return;
@@ -117,6 +180,19 @@
     const hasPoint = event.clientX !== 0 || event.clientY !== 0;
     const hitX = hasPoint ? event.clientX - f.left : r.cx;
     const hitY = hasPoint ? event.clientY - f.top : r.cy;
+
+    const dot = document.createElement("i");
+    dot.className = "hunt-dot";
+    dot.style.left = px(hitX);
+    dot.style.top = px(hitY);
+    figure.append(dot);
+    pieces.push(dot);
+    if (motion) {
+      play(dot, [{ transform: "scale(2.2)", opacity: 0 }, { transform: "scale(1)", opacity: 1 }], {
+        duration: 260,
+        easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      });
+    }
 
     const note = makeNote(2, "target");
     const place = () => {
@@ -415,10 +491,13 @@
         }
         break;
       case "reticle":
-        if (step === 1) {
-          setStep(2);
-          shoot(target, event);
+        if (step !== 1) break;
+        if (!hitsSkin(target, event)) {
+          miss(target, event);
+          break;
         }
+        setStep(2);
+        shoot(target, event);
         break;
       case "clock":
         if (step === 2) {
@@ -621,6 +700,31 @@
     left: 0;
     width: 100%;
     height: 2px;
+  }
+
+  .hunt-dot,
+  .hunt-miss {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  .hunt-dot {
+    width: 9px;
+    height: 9px;
+    margin: -4.5px;
+    background: #1f3d34;
+    box-shadow:
+      0 0 0 2px rgba(248, 245, 238, 0.85),
+      0 0 10px 2px rgba(47, 156, 114, 0.55);
+  }
+
+  .hunt-miss {
+    width: 22px;
+    height: 22px;
+    margin: -11px;
+    border: 1.5px dashed rgba(26, 28, 24, 0.55);
   }
 
   /* Alarm clock and its shards */
