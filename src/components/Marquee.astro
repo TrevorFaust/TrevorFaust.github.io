@@ -12,7 +12,9 @@ const items = [...about.skills, ...about.skills];
           class={(index % about.skills.length) % 2 === 0 ? "is-upright" : undefined}
           aria-hidden={index >= about.skills.length ? "true" : undefined}
         >
-          <span class="marquee__star" aria-hidden="true">✦</span>
+          <button class="marquee__star" type="button" data-hunt="star" tabindex="-1" aria-hidden="true">
+            ✦
+          </button>
           {skill}
         </li>
       ))
@@ -40,15 +42,11 @@ const items = [...about.skills, ...about.skills];
     animation: marquee 48s linear infinite;
   }
 
-  .marquee:hover .marquee__track {
-    animation-play-state: paused;
-  }
-
   .marquee__track li {
     display: inline-flex;
     align-items: center;
-    gap: 2.25rem;
-    padding-right: 2.25rem;
+    gap: 1.75rem;
+    padding-right: 1.75rem;
     font-family: var(--font-display);
     font-size: clamp(1.6rem, 3vw, 2.4rem);
     font-style: italic;
@@ -63,15 +61,48 @@ const items = [...about.skills, ...about.skills];
   }
 
   .marquee__star {
+    display: grid;
+    place-items: center;
+    width: 1.6em;
+    height: 1.6em;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
     font-family: var(--font-body);
     font-size: 0.55em;
     font-style: normal;
     color: var(--accent);
+    cursor: default;
+    transition:
+      transform 0.4s var(--ease-spring),
+      background 0.3s ease,
+      color 0.3s ease;
+  }
+
+  :global(html[data-hunt="2"]) .marquee__star {
+    cursor: pointer;
+    background: rgba(var(--accent-rgb), 0.14);
+    animation: star-hint 1.6s var(--ease-in-out) infinite;
+  }
+
+  :global(html[data-hunt="2"]) .marquee__star:hover {
+    background: var(--accent);
+    color: #f4f1ea;
+    animation: none;
+    transform: scale(1.35) rotate(45deg);
   }
 
   @keyframes marquee {
     to {
       transform: translateX(-50%);
+    }
+  }
+
+  @keyframes star-hint {
+    50% {
+      transform: scale(1.3);
     }
   }
 </style>

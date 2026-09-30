@@ -8,7 +8,11 @@ The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease L
 
 ## Look and feel
 
-The site uses a warm beige background with deep green accents. In the hero, the name sits between the beach photo and a cutout of Trevor (`src/assets/portrait-hero-cutout.png`). The letters pass behind him, and their outline is drawn only where they cross his body. The layers shift slightly with the cursor and on scroll, and a soft highlight follows the mouse. A skills ticker leads into Projects, and the project and contact rows share the same hover treatment.
+The site uses a warm beige background with deep green accents. In the hero, the name sits between the beach photo and a cutout of Trevor (`src/assets/portrait-hero-cutout.png`). The letters pass behind him, and their outline is drawn only where they cross his body. The layers shift slightly with the cursor and on scroll, and a soft highlight follows the mouse. A skills ticker that never stops scrolling leads into Projects. Contact is a small filing cabinet: click a tab to pull the Email, LinkedIn, Substack, or GitHub card to the front.
+
+## Scavenger hunt
+
+Clicking "Open to data analytics roles" in the hero starts a three-clue hunt. The clues lead to the lock-on square around Trevor's face, then a star in the skills ticker, then a hidden "Classified" card that slips into the contact cabinet. The clue logic lives in `src/components/Hunt.astro`. Progress is saved in `localStorage` under `tf-hunt`. Run `localStorage.removeItem('tf-hunt')` in the console to start over.
 
 ## Local development
 

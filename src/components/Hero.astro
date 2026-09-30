@@ -50,10 +50,10 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
           <span class="hero__line hero__line--2">{lastName}</span>
         </div>
       </div>
-      <div class="hero__reticle" aria-hidden="true">
+      <button class="hero__reticle" type="button" data-hunt="reticle" tabindex="-1" aria-hidden="true">
         <span class="hero__reticle-label">TF—01</span>
         <i></i><i></i><i></i><i></i>
-      </div>
+      </button>
     </div>
   </div>
 
@@ -81,10 +81,10 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
       </a>
       <a class="btn btn--ghost" href="#about">About me</a>
     </div>
-    <p class="hero__status">
+    <button class="hero__status" type="button" data-hunt="status">
       <span class="hero__status-dot" aria-hidden="true"></span>
       Open to data analytics roles
-    </p>
+    </button>
   </div>
 </section>
 
@@ -261,7 +261,6 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
   }
 
   .hero__photo--figure .hero__img {
-    filter: drop-shadow(0 24px 40px rgba(26, 28, 24, 0.14));
     opacity: 0;
     animation: materialize 1.5s var(--ease) 0.75s forwards;
   }
@@ -357,8 +356,22 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     width: 34%;
     height: 21%;
     z-index: 2;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    pointer-events: auto;
+    cursor: crosshair;
     opacity: 0;
     animation: reticle 1s var(--ease) 1.9s forwards;
+  }
+
+  :global(html[data-hunt="1"]) .hero__reticle i {
+    animation: lock-on 1.1s var(--ease-in-out) infinite;
+  }
+
+  :global(html[data-hunt="1"]) .hero__reticle-label {
+    color: var(--accent);
   }
 
   .hero__reticle i {
@@ -535,11 +548,19 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     align-items: center;
     gap: 0.65rem;
     margin: 1.5rem 0 0;
+    padding: 0.25rem 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--ink-soft);
+  }
+
+  .hero__status:hover {
+    color: var(--ink);
   }
 
   .hero__status-dot {
@@ -657,11 +678,11 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
   @keyframes materialize {
     from {
       opacity: 0;
-      filter: brightness(1.8) blur(10px) drop-shadow(0 24px 40px rgba(26, 28, 24, 0.14));
+      filter: brightness(1.8) blur(10px);
     }
     to {
       opacity: 1;
-      filter: brightness(1) blur(0) drop-shadow(0 24px 40px rgba(26, 28, 24, 0.14));
+      filter: none;
     }
   }
 
@@ -694,6 +715,13 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     100% {
       top: 100%;
       opacity: 0;
+    }
+  }
+
+  @keyframes lock-on {
+    50% {
+      border-color: var(--accent);
+      opacity: 0.35;
     }
   }
 

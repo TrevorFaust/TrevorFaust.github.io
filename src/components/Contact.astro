@@ -4,65 +4,217 @@ import { site } from "../data/site";
 const prettyUrl = (url: string) =>
   url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
 
-const links = [
-  { kind: "Email", value: site.email, href: `mailto:${site.email}`, external: false },
-  { kind: "LinkedIn", value: prettyUrl(site.links.linkedin), href: site.links.linkedin, external: true },
-  { kind: "Substack", value: prettyUrl(site.links.substack), href: site.links.substack, external: true },
-  { kind: "GitHub", value: prettyUrl(site.links.github), href: site.links.github, external: true },
+const cards = [
+  {
+    id: "email",
+    kind: "Email",
+    value: site.email,
+    note: "The fastest way to reach me about a role or a project.",
+    action: "Send an email",
+    href: `mailto:${site.email}`,
+    external: false,
+    copy: site.email,
+  },
+  {
+    id: "linkedin",
+    kind: "LinkedIn",
+    value: prettyUrl(site.links.linkedin),
+    note: "Work history, and the easiest way to connect.",
+    action: "Open LinkedIn",
+    href: site.links.linkedin,
+    external: true,
+  },
+  {
+    id: "substack",
+    kind: "Substack",
+    value: prettyUrl(site.links.substack),
+    note: "Where I write things up.",
+    action: "Read on Substack",
+    href: site.links.substack,
+    external: true,
+  },
+  {
+    id: "github",
+    kind: "GitHub",
+    value: prettyUrl(site.links.github),
+    note: "The code behind DraftDNA, Hustle Hunter, Lease Locator, and more.",
+    action: "Browse repos",
+    href: site.links.github,
+    external: true,
+  },
 ];
+
+const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found the hidden card")}`;
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
-  <div class="shell">
-    <p class="section-label reveal">Contact</p>
-    <h2 id="contact-title" class="display contact__title reveal reveal-delay-1">
-      Find me here. <em>Pick a link.</em>
-    </h2>
-    <p class="lead reveal reveal-delay-2">
-      Reach out about data analytics roles in sports, technology, or energy and
-      sustainability, or to talk shop about building things people use.
-    </p>
+  <div class="shell contact__grid">
+    <div class="contact__intro">
+      <p class="section-label reveal">Contact</p>
+      <h2 id="contact-title" class="display contact__title reveal reveal-delay-1">
+        Find me here.<br /><em>Pick a card.</em>
+      </h2>
+      <p class="lead reveal reveal-delay-2">
+        Reach out about data analytics roles in sports, technology, or energy and
+        sustainability, or to talk shop about building things people use.
+      </p>
+    </div>
 
-    <ul class="contact__links">
-      {
-        links.map((link, index) => (
-          <li class={`reveal reveal-delay-${Math.min(index, 3)}`}>
-            <a
-              class="contact__row"
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              data-spotlight
-            >
-              <span class="contact__kind">{link.kind}</span>
-              <span class="contact__value">{link.value}</span>
-              <span class="contact__arrow" aria-hidden="true">
-                {link.external ? "↗" : "→"}
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="cabinet reveal" data-cabinet>
+      <div class="cabinet__stack">
+        {
+          cards.map((card, index) => (
+            <article class="cabinet__card" data-card={card.id} style={`--slot: ${index}`}>
+              <button
+                class="cabinet__tab"
+                type="button"
+                aria-controls={`card-${card.id}`}
+                aria-expanded={index === 0 ? "true" : "false"}
+              >
+                {card.kind}
+              </button>
+              <div class="cabinet__body" id={`card-${card.id}`}>
+                <div class="cabinet__header">
+                  <span class="cabinet__rule"></span>
+                </div>
+                <p class="cabinet__value">{card.value}</p>
+                <p class="cabinet__note">{card.note}</p>
+                <div class="cabinet__actions">
+                  <a
+                    class="btn btn--primary"
+                    href={card.href}
+                    target={card.external ? "_blank" : undefined}
+                    rel={card.external ? "noopener noreferrer" : undefined}
+                  >
+                    {card.action}
+                    <span class="btn__arrow" aria-hidden="true">{card.external ? "↗" : "→"}</span>
+                  </a>
+                  {card.copy && (
+                    <button class="btn btn--ghost" type="button" data-copy={card.copy}>
+                      Copy address
+                    </button>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))
+        }
+
+        <article class="cabinet__card cabinet__card--secret" data-card="secret" style="--slot: 4" hidden>
+          <button class="cabinet__tab cabinet__tab--secret" type="button" aria-controls="card-secret" aria-expanded="false">
+            <span class="cabinet__tab-long">Classified</span><span class="cabinet__tab-short">Secret</span>
+          </button>
+          <div class="cabinet__body" id="card-secret">
+            <div class="cabinet__header">
+              <span class="cabinet__rule"></span>
+            </div>
+            <p class="cabinet__value cabinet__value--secret">PLEASE hire me.</p>
+            <p class="cabinet__note">You followed every clue to get here. I'm that thorough with data, too.</p>
+            <div class="cabinet__actions">
+              <a class="btn btn--primary" href={secretMailto}>
+                Let's talk <span class="btn__arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+            <span class="cabinet__stamp" aria-hidden="true">Found it</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="cabinet__front" aria-hidden="true">
+        <span class="cabinet__label">Contact · T. Faust</span>
+        <span class="cabinet__handle"></span>
+      </div>
+    </div>
   </div>
 </section>
 
 <footer class="footer">
   <div class="shell footer__inner">
     <p>© {new Date().getFullYear()} {site.name}</p>
-    <p>Built with Astro · Deployed on GitHub Pages</p>
     <p>{site.location} · {site.coordinates}</p>
   </div>
 </footer>
 
 <script>
-  document.querySelectorAll<HTMLElement>(".contact__row[data-spotlight]").forEach((row) => {
-    row.addEventListener("pointermove", (event) => {
-      const rect = row.getBoundingClientRect();
-      row.style.setProperty("--x", `${event.clientX - rect.left}px`);
-      row.style.setProperty("--y", `${event.clientY - rect.top}px`);
+  const cabinet = document.querySelector<HTMLElement>("[data-cabinet]");
+
+  if (cabinet) {
+    const cards = [...cabinet.querySelectorAll<HTMLElement>("[data-card]")];
+    const secret = cards.find((card) => card.dataset.card === "secret");
+    let active = 0;
+
+    const visibleCards = () => cards.filter((card) => !card.hidden);
+
+    const positionOf = (card: HTMLElement) => {
+      const list = visibleCards();
+      const n = list.length;
+      return (list.indexOf(card) - list.indexOf(cards[active]) + n) % n;
+    };
+
+    const layout = () => {
+      const list = visibleCards();
+      cabinet.style.setProperty("--count", String(list.length));
+      list.forEach((card) => {
+        const pos = positionOf(card);
+        const front = pos === 0;
+        card.style.setProperty("--pos", String(pos));
+        card.style.zIndex = String(10 + list.length - pos);
+        card.classList.toggle("is-front", front);
+        card.querySelector(".cabinet__tab")?.setAttribute("aria-expanded", String(front));
+        card.querySelector(".cabinet__body")?.toggleAttribute("inert", !front);
+      });
+    };
+
+    const open = (index: number) => {
+      if (index === active) return;
+      const card = cards[index];
+      card.style.setProperty("--from-pos", String(positionOf(card)));
+      card.classList.remove("is-pulling");
+      void card.offsetWidth;
+      card.classList.add("is-pulling");
+      card.addEventListener("animationend", () => card.classList.remove("is-pulling"), { once: true });
+      active = index;
+      layout();
+      if (card === secret) window.dispatchEvent(new CustomEvent("hunt:found"));
+    };
+
+    cards.forEach((card, index) => {
+      card.querySelector(".cabinet__tab")?.addEventListener("click", () => open(index));
+      card.addEventListener("click", (event) => {
+        if (card.classList.contains("is-front")) return;
+        if ((event.target as HTMLElement).closest(".cabinet__tab")) return;
+        open(index);
+      });
     });
-  });
+
+    cabinet.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? "");
+          const label = button.textContent;
+          button.textContent = "Copied";
+          setTimeout(() => (button.textContent = label), 1600);
+        } catch {
+          /* clipboard can be blocked; the mailto button still works */
+        }
+      });
+    });
+
+    const revealSecret = () => {
+      if (!secret || !secret.hidden) return;
+      secret.hidden = false;
+      secret.classList.add("is-arriving");
+      secret.addEventListener("animationend", () => secret.classList.remove("is-arriving"), { once: true });
+      layout();
+    };
+
+    window.addEventListener("hunt:step", (event) => {
+      if ((event as CustomEvent<number>).detail >= 3) revealSecret();
+    });
+
+    if (Number(document.documentElement.dataset.hunt ?? 0) >= 3) revealSecret();
+    layout();
+  }
 </script>
 
 <style>
@@ -85,116 +237,337 @@ const links = [
     pointer-events: none;
   }
 
-  .contact__title {
-    font-size: clamp(3rem, 9vw, 7.5rem);
-    max-width: 10ch;
-  }
-
-  .contact__links {
-    list-style: none;
-    margin: clamp(3rem, 6vw, 4.5rem) 0 0;
-    padding: 0;
-    border-top: 1px solid var(--line-strong);
-  }
-
-  .contact__row {
-    --x: 50%;
-    --y: 50%;
-    position: relative;
+  .contact__grid {
     display: grid;
-    grid-template-columns: 8rem minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 1rem 1.5rem;
-    padding: clamp(1.25rem, 2.6vw, 1.75rem) clamp(0.25rem, 1.5vw, 1rem);
-    border-bottom: 1px solid var(--line);
-    text-decoration: none;
-    isolation: isolate;
+    gap: clamp(3rem, 6vw, 4.5rem);
   }
 
-  .contact__row::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(380px circle at var(--x) var(--y), rgba(var(--glow-rgb), 0.85), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+  @media (min-width: 1000px) {
+    .contact__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      align-items: end;
+    }
   }
 
-  .contact__row::after {
-    content: "";
+  .contact__title {
+    font-size: clamp(2.8rem, 5.6vw, 5.25rem);
+  }
+
+  /* ---------- Filing cabinet ---------- */
+
+  .cabinet {
+    --count: 4;
+    --step: 2.75rem;
+    --tab-h: 2.2rem;
+    --card-h: 18rem;
+    --overlap: 3rem;
+    position: relative;
+  }
+
+  .cabinet__stack {
+    position: relative;
+    height: calc(var(--card-h) + (var(--count) - 1) * var(--step) + var(--tab-h));
+    transition: height 0.6s var(--ease);
+  }
+
+  .cabinet__card {
     position: absolute;
     left: 0;
-    bottom: -1px;
-    width: 100%;
-    height: 1px;
-    background: var(--grad-accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.7s var(--ease);
+    right: 0;
+    bottom: 0;
+    height: var(--card-h);
+    border-radius: 0 0.9rem 0.9rem 0.9rem;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--step) + 1.9rem),
+        rgba(var(--accent-rgb), 0.09) calc(var(--step) + 1.9rem),
+        rgba(var(--accent-rgb), 0.09) calc(var(--step) + 1.9rem + 1px)
+      ),
+      linear-gradient(180deg, #fdfbf6, #f5f1e8);
+    box-shadow:
+      0 0 0 1px rgba(26, 28, 24, 0.1),
+      0 -6px 18px -12px rgba(26, 28, 24, 0.35);
+    transform-origin: 50% 100%;
+    transform: translateY(calc(var(--pos, 0) * var(--step) * -1)) scale(calc(1 - var(--pos, 0) * 0.018));
+    filter: brightness(calc(1 - var(--pos, 0) * 0.025));
+    transition:
+      transform 0.7s var(--ease),
+      filter 0.5s ease,
+      translate 0.35s var(--ease);
   }
 
-  .contact__row:hover::before {
-    opacity: 1;
+  .cabinet__card:not(.is-front) {
+    cursor: pointer;
   }
 
-  .contact__row:hover::after {
-    transform: scaleX(1);
+  .cabinet__card:not(.is-front):hover {
+    translate: 0 -0.45rem;
   }
 
-  .contact__kind {
+  .cabinet__card.is-pulling {
+    animation: pull 0.85s var(--ease) both;
+  }
+
+  .cabinet__card.is-arriving {
+    animation: arrive 1.1s var(--ease-spring) both;
+  }
+
+  .cabinet__tab {
+    position: absolute;
+    bottom: 100%;
+    left: calc(var(--slot) * 20%);
+    width: 19%;
+    height: var(--tab-h);
+    margin: 0;
+    padding: 0 0.6rem;
+    border: 0;
+    border-radius: 0.7rem 0.7rem 0 0;
+    background: #faf7f0;
+    box-shadow: 0 0 0 1px rgba(26, 28, 24, 0.1);
+    clip-path: inset(-2px -2px 0 -2px);
     font-family: var(--font-mono);
-    font-size: 0.74rem;
+    font-size: 0.68rem;
     font-weight: 500;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+
+  .cabinet__tab:hover,
+  .is-front > .cabinet__tab {
     color: var(--accent);
   }
 
-  .contact__value {
+  .is-front > .cabinet__tab::after {
+    content: "";
+    position: absolute;
+    left: 25%;
+    right: 25%;
+    top: 0.4rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .cabinet__body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - var(--overlap));
+    padding: 0 clamp(1.25rem, 3vw, 2rem) 1.25rem;
+  }
+
+  .cabinet__header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: var(--step);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .cabinet__rule {
+    flex: 1;
+    height: 1px;
+    background: rgba(var(--accent-rgb), 0.28);
+  }
+
+  .cabinet__value {
+    margin: 0.35rem 0 0;
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
-    line-height: 1.1;
+    font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+    line-height: 1.05;
     letter-spacing: -0.015em;
     color: var(--ink);
     overflow-wrap: anywhere;
-    transition: transform 0.5s var(--ease);
   }
 
-  .contact__row:hover .contact__value {
-    transform: translateX(0.4rem);
+  .cabinet__note {
+    margin: 0.6rem 0 0;
+    max-width: 30rem;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .cabinet__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+
+  .cabinet__actions .btn {
+    min-height: 2.6rem;
+    padding: 0.5rem 1.05rem;
+    font-size: 0.86rem;
+  }
+
+  /* The hidden card from the scavenger hunt */
+  .cabinet__card--secret {
+    background:
+      radial-gradient(circle at 85% 20%, rgba(255, 253, 247, 0.12), transparent 50%),
+      linear-gradient(160deg, #2c5448, #1f3d34);
+  }
+
+  .cabinet__card--secret .cabinet__header,
+  .cabinet__card--secret .cabinet__note {
+    color: rgba(244, 241, 234, 0.75);
+  }
+
+  .cabinet__card--secret .cabinet__rule {
+    background: rgba(244, 241, 234, 0.2);
+  }
+
+  .cabinet__value--secret {
     font-style: italic;
-  }
-
-  .contact__arrow {
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    color: var(--ink);
-    transition:
-      background 0.3s ease,
-      color 0.3s ease,
-      border-color 0.3s ease,
-      transform 0.5s var(--ease);
-  }
-
-  .contact__row:hover .contact__arrow {
-    background: var(--ink);
-    border-color: var(--ink);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
     color: #f4f1ea;
-    transform: rotate(-8deg) scale(1.05);
+  }
+
+  .cabinet__card--secret .btn--primary {
+    background: #f4f1ea;
+    color: var(--ink);
+  }
+
+  .cabinet__stamp {
+    position: absolute;
+    right: 1.5rem;
+    top: calc(var(--step) + 0.75rem);
+    padding: 0.3rem 0.7rem;
+    border: 1.5px solid rgba(244, 241, 234, 0.6);
+    border-radius: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(244, 241, 234, 0.8);
+    transform: rotate(8deg);
+  }
+
+  .cabinet__tab-short {
+    display: none;
+  }
+
+  .cabinet__tab--secret {
+    background: #2c5448;
+    color: rgba(244, 241, 234, 0.8);
+  }
+
+  .cabinet__tab--secret:hover,
+  .is-front > .cabinet__tab--secret {
+    color: #f4f1ea;
+  }
+
+  .is-front > .cabinet__tab--secret::after {
+    background: #f4f1ea;
+  }
+
+  :global(html[data-hunt="3"]) .cabinet__tab--secret {
+    animation: secret-glow 1.8s var(--ease-in-out) infinite;
+  }
+
+  .cabinet__front {
+    position: relative;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 5.5rem;
+    margin-top: calc(var(--overlap) * -1);
+    padding: 0 clamp(1.25rem, 3vw, 2rem);
+    border-radius: 0.5rem 0.5rem 1.1rem 1.1rem;
+    background: linear-gradient(180deg, #3d6f5f 0%, #2f5a4d 60%, #284e43 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.12),
+      0 24px 40px -22px rgba(26, 28, 24, 0.6);
+  }
+
+  .cabinet__label {
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.25rem;
+    background: #f1ede3;
+    box-shadow:
+      inset 0 0 0 1px rgba(26, 28, 24, 0.15),
+      0 0 0 3px rgba(0, 0, 0, 0.12);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .cabinet__handle {
+    width: clamp(5rem, 14vw, 8rem);
+    height: 0.8rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #e9e3d4, #bdb4a0);
+    box-shadow:
+      0 2px 0 rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
 
   @media (max-width: 640px) {
-    .contact__row {
-      grid-template-columns: minmax(0, 1fr) auto;
+    .cabinet {
+      --step: 2.5rem;
+      --card-h: 19rem;
     }
 
-    .contact__kind {
-      grid-column: 1 / -1;
+    .cabinet__tab {
+      padding: 0 0.3rem;
+      font-size: 0.56rem;
+      letter-spacing: 0.06em;
+    }
+
+    .cabinet__tab-long {
+      display: none;
+    }
+
+    .cabinet__tab-short {
+      display: inline;
+    }
+  }
+
+  @keyframes pull {
+    0% {
+      transform: translateY(calc(var(--from-pos) * var(--step) * -1)) scale(calc(1 - var(--from-pos) * 0.018));
+    }
+    45% {
+      transform: translateY(calc(var(--from-pos) * var(--step) * -1 - 42%)) rotate(-1.2deg) scale(1.01);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      transform: translateY(calc(var(--pos) * var(--step) * -1 - 70%)) rotate(2deg);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(calc(var(--pos) * var(--step) * -1)) scale(calc(1 - var(--pos) * 0.018));
+    }
+  }
+
+  @keyframes secret-glow {
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(26, 28, 24, 0.1),
+        0 0 18px 2px rgba(var(--accent-rgb), 0.55);
     }
   }
 

@@ -1,0 +1,160 @@
+<div class="clue" data-clue role="status" aria-live="polite" hidden>
+  <p class="clue__label" data-clue-label></p>
+  <p class="clue__text" data-clue-text></p>
+  <button class="clue__close" type="button" aria-label="Dismiss clue" data-clue-close>×</button>
+</div>
+
+<script>
+  const STORAGE_KEY = "tf-hunt";
+  const clues: Record<number, [string, string]> = {
+    1: ["Clue 1 of 3", "Lock on. Click the square around my face up top."],
+    2: ["Clue 2 of 3", "Target acquired. Now catch one of the ✦ stars rolling through the ribbon."],
+    3: ["Clue 3 of 3", "Nice catch. Last stop is the filing cabinet at the bottom. A new card just slipped in."],
+    4: ["Hunt complete", "You already found the hidden card. The message still stands."],
+  };
+
+  const toast = document.querySelector<HTMLElement>("[data-clue]");
+  const label = document.querySelector<HTMLElement>("[data-clue-label]");
+  const text = document.querySelector<HTMLElement>("[data-clue-text]");
+  let hideTimer = 0;
+
+  const readStep = () => {
+    try {
+      return Number(localStorage.getItem(STORAGE_KEY) ?? 0) || 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  let step = readStep();
+
+  const setStep = (next: number) => {
+    step = next;
+    document.documentElement.dataset.hunt = String(step);
+    try {
+      localStorage.setItem(STORAGE_KEY, String(step));
+    } catch {
+      /* private browsing can block storage; the hunt still works for this visit */
+    }
+    window.dispatchEvent(new CustomEvent("hunt:step", { detail: step }));
+  };
+
+  const hide = () => {
+    if (!toast) return;
+    toast.classList.remove("is-open");
+    window.clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(() => (toast.hidden = true), 400);
+  };
+
+  const show = (clueStep: number) => {
+    const clue = clues[clueStep];
+    if (!toast || !label || !text || !clue) return;
+    window.clearTimeout(hideTimer);
+    [label.textContent, text.textContent] = clue;
+    toast.hidden = false;
+    toast.classList.remove("is-open");
+    void toast.offsetWidth;
+    toast.classList.add("is-open");
+    hideTimer = window.setTimeout(hide, 9000);
+  };
+
+  document.querySelector("[data-clue-close]")?.addEventListener("click", hide);
+
+  document.addEventListener("click", (event) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>("[data-hunt]");
+    if (!target) return;
+
+    switch (target.dataset.hunt) {
+      case "status":
+        if (step === 0) setStep(1);
+        show(step);
+        break;
+      case "reticle":
+        if (step === 1) {
+          setStep(2);
+          show(2);
+        }
+        break;
+      case "star":
+        if (step === 2) {
+          setStep(3);
+          show(3);
+        }
+        break;
+    }
+  });
+
+  window.addEventListener("hunt:found", () => {
+    if (step < 4) setStep(4);
+    hide();
+  });
+
+  setStep(step);
+</script>
+
+<style>
+  .clue {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    z-index: 90;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem 1rem;
+    width: min(30rem, calc(100% - 2rem));
+    padding: 1rem 1.1rem 1.1rem 1.3rem;
+    border-radius: 1rem;
+    background: var(--ink);
+    color: #f4f1ea;
+    box-shadow: 0 24px 60px -20px rgba(26, 28, 24, 0.55);
+    transform: translate(-50%, calc(100% + 2rem));
+    opacity: 0;
+    transition:
+      transform 0.6s var(--ease-spring),
+      opacity 0.3s ease;
+  }
+
+  .clue.is-open {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  .clue__label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #9fd1bc;
+  }
+
+  .clue__text {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .clue__close {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    width: 2rem;
+    height: 2rem;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(244, 241, 234, 0.2);
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .clue__close:hover {
+    background: rgba(244, 241, 234, 0.12);
+  }
+</style>

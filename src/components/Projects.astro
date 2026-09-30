@@ -17,7 +17,6 @@ const projectIcons: Record<(typeof projects)[number]["slug"], ImageMetadata> = {
 };
 
 const visibleProjects = projects.filter((project) => !("hidden" in project && project.hidden));
-const total = String(visibleProjects.length).padStart(2, "0");
 ---
 
 <section class="section projects" id="projects" aria-labelledby="projects-title">
@@ -27,23 +26,19 @@ const total = String(visibleProjects.length).padStart(2, "0");
       <h2 id="projects-title" class="display projects__title reveal reveal-delay-1">
         What I built <em>and shipped.</em>
       </h2>
-      <p class="lead reveal reveal-delay-2">
+      <p class="projects__caption reveal reveal-delay-2">
         Data platforms and personal tools I designed, built, and still use.
       </p>
     </div>
 
     <ol class="project-list">
       {
-        visibleProjects.map((project, index) => {
+        visibleProjects.map((project) => {
           const icon = projectIcons[project.slug];
           const liveLabel = project.href.includes("github.com") ? "View repo" : "Open live";
           return (
             <li class="project reveal" data-spotlight>
               <div class="project__meta">
-                <span class="project__index">
-                  {String(index + 1).padStart(2, "0")}{" "}
-                  <span class="project__total">/ {total}</span>
-                </span>
                 <a
                   class="project__mark"
                   href={project.href}
@@ -123,14 +118,27 @@ const total = String(visibleProjects.length).padStart(2, "0");
     gap: 0;
   }
 
+  .projects__caption {
+    max-width: 24rem;
+    margin: 1.5rem 0 0;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--accent);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    line-height: 1.25;
+    color: var(--ink-soft);
+  }
+
   @media (min-width: 900px) {
     .projects__intro {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: auto minmax(0, 22rem);
       grid-template-areas:
         "label label"
-        "title lead";
+        "title caption";
+      justify-content: start;
       align-items: end;
-      column-gap: 4rem;
+      column-gap: clamp(2rem, 4vw, 3.5rem);
     }
 
     .projects__intro .section-label {
@@ -141,10 +149,9 @@ const total = String(visibleProjects.length).padStart(2, "0");
       grid-area: title;
     }
 
-    .projects__intro .lead {
-      grid-area: lead;
-      max-width: 22rem;
-      margin: 0 0 0.6rem;
+    .projects__caption {
+      grid-area: caption;
+      margin: 0 0 0.9rem;
     }
   }
 
@@ -213,17 +220,6 @@ const total = String(visibleProjects.length).padStart(2, "0");
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
-  }
-
-  .project__index {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.1em;
-    color: var(--ink-soft);
-  }
-
-  .project__total {
-    color: var(--ink-faint);
   }
 
   .project__mark {
