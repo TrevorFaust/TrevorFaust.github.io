@@ -8,7 +8,7 @@ The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease L
 
 ## Look and feel
 
-The site is dark, with warm sunset accents taken from the hero photo. In the hero, the name sits between the beach photo and a cutout of Trevor (`src/assets/portrait-hero-cutout.png`), so the letters pass behind him and their outline is drawn over him. The layers shift slightly with the cursor and on scroll. A skills ticker leads into Projects, and Projects, About, and Contact share the same dark styling.
+The site uses a warm beige background with deep green accents. In the hero, the name sits between the beach photo and a cutout of Trevor (`src/assets/portrait-hero-cutout.png`). The letters pass behind him, and their outline is drawn only where they cross his body. The layers shift slightly with the cursor and on scroll, and a soft highlight follows the mouse. A skills ticker leads into Projects, and the project and contact rows share the same hover treatment.
 
 ## Local development
 

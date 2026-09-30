@@ -5,15 +5,16 @@ const prettyUrl = (url: string) =>
   url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
 
 const links = [
-  { kind: "LinkedIn", value: prettyUrl(site.links.linkedin), href: site.links.linkedin },
-  { kind: "Substack", value: prettyUrl(site.links.substack), href: site.links.substack },
-  { kind: "GitHub", value: prettyUrl(site.links.github), href: site.links.github },
+  { kind: "Email", value: site.email, href: `mailto:${site.email}`, external: false },
+  { kind: "LinkedIn", value: prettyUrl(site.links.linkedin), href: site.links.linkedin, external: true },
+  { kind: "Substack", value: prettyUrl(site.links.substack), href: site.links.substack, external: true },
+  { kind: "GitHub", value: prettyUrl(site.links.github), href: site.links.github, external: true },
 ];
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
   <div class="shell">
-    <p class="section-label reveal"><span class="section-label__num">03</span>Contact</p>
+    <p class="section-label reveal">Contact</p>
     <h2 id="contact-title" class="display contact__title reveal reveal-delay-1">
       Find me here. <em>Pick a link.</em>
     </h2>
@@ -22,20 +23,22 @@ const links = [
       sustainability, or to talk shop about building things people use.
     </p>
 
-    <a class="contact__email reveal reveal-delay-3" href={`mailto:${site.email}`}>
-      <span class="contact__email-kind">Email</span>
-      <span class="contact__email-value">{site.email}</span>
-      <span class="contact__email-arrow" aria-hidden="true">→</span>
-    </a>
-
     <ul class="contact__links">
       {
-        links.map((link) => (
-          <li class="reveal">
-            <a class="contact__row" href={link.href} target="_blank" rel="noopener noreferrer">
+        links.map((link, index) => (
+          <li class={`reveal reveal-delay-${Math.min(index, 3)}`}>
+            <a
+              class="contact__row"
+              href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
+              data-spotlight
+            >
               <span class="contact__kind">{link.kind}</span>
               <span class="contact__value">{link.value}</span>
-              <span class="contact__arrow" aria-hidden="true">↗</span>
+              <span class="contact__arrow" aria-hidden="true">
+                {link.external ? "↗" : "→"}
+              </span>
             </a>
           </li>
         ))
@@ -47,10 +50,20 @@ const links = [
 <footer class="footer">
   <div class="shell footer__inner">
     <p>© {new Date().getFullYear()} {site.name}</p>
-    <p class="footer__mid">Built with Astro · Deployed on GitHub Pages</p>
+    <p>Built with Astro · Deployed on GitHub Pages</p>
     <p>{site.location} · {site.coordinates}</p>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".contact__row[data-spotlight]").forEach((row) => {
+    row.addEventListener("pointermove", (event) => {
+      const rect = row.getBoundingClientRect();
+      row.style.setProperty("--x", `${event.clientX - rect.left}px`);
+      row.style.setProperty("--y", `${event.clientY - rect.top}px`);
+    });
+  });
+</script>
 
 <style>
   .contact {
@@ -68,7 +81,7 @@ const links = [
     max-width: 52rem;
     max-height: 52rem;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(var(--sun-rgb), 0.12), transparent 62%);
+    background: radial-gradient(circle, rgba(var(--accent-rgb), 0.12), transparent 62%);
     pointer-events: none;
   }
 
@@ -77,129 +90,107 @@ const links = [
     max-width: 10ch;
   }
 
-  .contact__email {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "kind arrow"
-      "value arrow";
-    align-items: center;
-    gap: 0.35rem 1.5rem;
-    margin-top: clamp(3rem, 6vw, 4.5rem);
-    padding: clamp(1.5rem, 3vw, 2.25rem) 0;
-    border-block: 1px solid var(--line-strong);
-    text-decoration: none;
-  }
-
-  .contact__email-kind {
-    grid-area: kind;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  .contact__email-value {
-    grid-area: value;
-    font-family: var(--font-display);
-    font-size: clamp(1.9rem, 6.2vw, 5rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    overflow-wrap: anywhere;
-    background: linear-gradient(90deg, var(--ink) 0%, var(--ink) 50%, #ffb48c 50%, #ff8466 100%);
-    background-size: 200% 100%;
-    background-position: 0 0;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    transition: background-position 0.8s var(--ease);
-  }
-
-  .contact__email:hover .contact__email-value {
-    background-position: 100% 0;
-  }
-
-  .contact__email-arrow {
-    grid-area: arrow;
-    display: grid;
-    place-items: center;
-    width: clamp(3rem, 6vw, 4.5rem);
-    height: clamp(3rem, 6vw, 4.5rem);
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    font-size: 1.25rem;
-    transition:
-      background 0.35s ease,
-      color 0.35s ease,
-      transform 0.5s var(--ease);
-  }
-
-  .contact__email:hover .contact__email-arrow {
-    background: var(--grad-sun);
-    color: var(--bg);
-    border-color: transparent;
-    transform: rotate(-45deg);
-  }
-
   .contact__links {
     list-style: none;
-    margin: 0;
+    margin: clamp(3rem, 6vw, 4.5rem) 0 0;
     padding: 0;
+    border-top: 1px solid var(--line-strong);
   }
 
   .contact__row {
+    --x: 50%;
+    --y: 50%;
+    position: relative;
     display: grid;
-    grid-template-columns: 7rem 1fr auto;
+    grid-template-columns: 8rem minmax(0, 1fr) auto;
     align-items: center;
-    gap: 1rem;
-    padding: 1.25rem 0;
+    gap: 1rem 1.5rem;
+    padding: clamp(1.25rem, 2.6vw, 1.75rem) clamp(0.25rem, 1.5vw, 1rem);
     border-bottom: 1px solid var(--line);
     text-decoration: none;
-    transition:
-      padding 0.45s var(--ease),
-      color 0.3s ease;
+    isolation: isolate;
   }
 
-  .contact__row:hover {
-    padding-left: 0.75rem;
+  .contact__row::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(380px circle at var(--x) var(--y), rgba(var(--glow-rgb), 0.85), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .contact__row::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 1px;
+    background: var(--grad-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease);
+  }
+
+  .contact__row:hover::before {
+    opacity: 1;
+  }
+
+  .contact__row:hover::after {
+    transform: scaleX(1);
   }
 
   .contact__kind {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.74rem;
+    font-weight: 500;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--sun);
+    color: var(--accent);
   }
 
   .contact__value {
-    font-size: clamp(1rem, 1.6vw, 1.15rem);
-    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--ink);
     overflow-wrap: anywhere;
-    transition: color 0.3s ease;
+    transition: transform 0.5s var(--ease);
   }
 
   .contact__row:hover .contact__value {
-    color: var(--ink);
+    transform: translateX(0.4rem);
+    font-style: italic;
   }
 
   .contact__arrow {
-    color: var(--ink-faint);
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
     transition:
-      transform 0.45s var(--ease),
-      color 0.3s ease;
+      background 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease,
+      transform 0.5s var(--ease);
   }
 
   .contact__row:hover .contact__arrow {
-    color: var(--sun);
-    transform: translate(3px, -3px);
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #f4f1ea;
+    transform: rotate(-8deg) scale(1.05);
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 640px) {
     .contact__row {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) auto;
     }
 
     .contact__kind {

@@ -23,7 +23,7 @@ const total = String(visibleProjects.length).padStart(2, "0");
 <section class="section projects" id="projects" aria-labelledby="projects-title">
   <div class="shell">
     <div class="projects__intro">
-      <p class="section-label reveal"><span class="section-label__num">01</span>Projects</p>
+      <p class="section-label reveal">Projects</p>
       <h2 id="projects-title" class="display projects__title reveal reveal-delay-1">
         What I built <em>and shipped.</em>
       </h2>
@@ -44,7 +44,14 @@ const total = String(visibleProjects.length).padStart(2, "0");
                   {String(index + 1).padStart(2, "0")}{" "}
                   <span class="project__total">/ {total}</span>
                 </span>
-                <div class="project__mark">
+                <a
+                  class="project__mark"
+                  href={project.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
                   <Image
                     class="project__icon"
                     src={icon}
@@ -52,7 +59,7 @@ const total = String(visibleProjects.length).padStart(2, "0");
                     widths={[120, 180, 240]}
                     sizes="4.5rem"
                   />
-                </div>
+                </a>
               </div>
 
               <div class="project__main">
@@ -174,8 +181,8 @@ const total = String(visibleProjects.length).padStart(2, "0");
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(420px circle at var(--x) var(--y), rgba(var(--sun-rgb), 0.09), transparent 70%),
-      linear-gradient(90deg, rgba(241, 236, 227, 0.025), transparent);
+      radial-gradient(420px circle at var(--x) var(--y), rgba(var(--glow-rgb), 0.85), transparent 70%),
+      linear-gradient(90deg, rgba(var(--accent-rgb), 0.04), transparent);
     opacity: 0;
     transition: opacity 0.4s ease;
   }
@@ -187,7 +194,7 @@ const total = String(visibleProjects.length).padStart(2, "0");
     bottom: -1px;
     height: 1px;
     width: 100%;
-    background: var(--grad-sun);
+    background: var(--grad-accent);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.7s var(--ease);
@@ -212,7 +219,7 @@ const total = String(visibleProjects.length).padStart(2, "0");
     font-family: var(--font-mono);
     font-size: 0.78rem;
     letter-spacing: 0.1em;
-    color: var(--sun);
+    color: var(--ink-soft);
   }
 
   .project__total {
@@ -220,26 +227,42 @@ const total = String(visibleProjects.length).padStart(2, "0");
   }
 
   .project__mark {
-    display: grid;
-    place-items: center;
+    position: relative;
     width: 4.5rem;
     height: 4.5rem;
-    padding: 0.7rem;
     border-radius: 1rem;
-    background: linear-gradient(145deg, #f4efe6, #dcd5c8);
+    background: linear-gradient(145deg, #fdfbf7, #efebe3);
     box-shadow:
-      0 0 0 1px rgba(241, 236, 227, 0.1),
-      0 18px 40px -18px rgba(0, 0, 0, 0.8);
-    transition: transform 0.5s var(--ease);
+      0 0 0 1px var(--line),
+      0 14px 30px -16px rgba(26, 28, 24, 0.35);
+    transition:
+      transform 0.55s var(--ease-spring),
+      box-shadow 0.55s var(--ease);
   }
 
   .project:hover .project__mark {
-    transform: rotate(-6deg) scale(1.06);
+    transform: scale(1.14);
+    box-shadow:
+      0 0 0 1px rgba(var(--accent-rgb), 0.25),
+      0 22px 40px -18px rgba(26, 28, 24, 0.45);
+  }
+
+  /* Squash on press, then spring back out on release */
+  .project:has(a:active) .project__mark,
+  .project__mark:active {
+    transform: scale(0.88);
+    box-shadow:
+      0 0 0 1px rgba(var(--accent-rgb), 0.35),
+      0 6px 14px -10px rgba(26, 28, 24, 0.4);
+    transition-duration: 0.12s;
+    transition-timing-function: var(--ease);
   }
 
   .project__icon {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0.7rem;
+    width: calc(100% - 1.4rem);
+    height: calc(100% - 1.4rem);
     object-fit: contain;
   }
 
@@ -276,7 +299,6 @@ const total = String(visibleProjects.length).padStart(2, "0");
     max-width: 36rem;
     color: var(--ink);
     font-size: 1.02rem;
-    font-weight: 300;
   }
 
   .project__aside {
@@ -290,7 +312,6 @@ const total = String(visibleProjects.length).padStart(2, "0");
     margin: 0;
     color: var(--ink-soft);
     font-size: 0.95rem;
-    font-weight: 300;
   }
 
   .project__tags {
