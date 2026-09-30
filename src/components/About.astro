@@ -7,22 +7,24 @@ import aboutPortrait from "../assets/portrait-about.png";
 <section class="section about" id="about" aria-labelledby="about-title">
   <div class="shell about__grid">
     <div class="about__media reveal">
-      <div class="about__photo">
-        <div class="about__fade">
-          <Image
-            class="about__image"
-            src={aboutPortrait}
-            alt={`${site.name} sitting on a rock in the mountains`}
-            widths={[360, 576]}
-            sizes="(min-width: 900px) 36vw, 90vw"
-          />
+      <div class="about__frame">
+        <div class="about__photo">
+          <div class="about__fade">
+            <Image
+              class="about__image"
+              src={aboutPortrait}
+              alt={`${site.name} sitting on a rock in the mountains`}
+              widths={[360, 576]}
+              sizes="(min-width: 900px) 36vw, 90vw"
+            />
+          </div>
         </div>
+        <span class="about__corner about__corner--tl" aria-hidden="true"></span>
+        <span class="about__corner about__corner--br" aria-hidden="true"></span>
+        <button class="about__tag" type="button" data-hunt="clock" tabindex="-1" aria-hidden="true">
+          Off the clock
+        </button>
       </div>
-      <span class="about__corner about__corner--tl" aria-hidden="true"></span>
-      <span class="about__corner about__corner--br" aria-hidden="true"></span>
-      <button class="about__tag" type="button" data-hunt="clock" tabindex="-1" aria-hidden="true">
-        Off the clock
-      </button>
     </div>
 
     <div class="about__copy">
@@ -87,7 +89,8 @@ import aboutPortrait from "../assets/portrait-about.png";
     }
   }
 
-  .about__media {
+  .about__media,
+  .about__frame {
     position: relative;
   }
 

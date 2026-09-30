@@ -15,8 +15,8 @@ The site uses a warm beige background with deep green accents. In the hero, the 
 A note in the footer points visitors to "Open to data analytics roles" in the hero, which starts a four-clue hunt. Each clue appears where it was triggered, and the steps only work in order:
 
 1. A firework launches from the green status dot, bursts, and its sparks settle into the first clue written beneath it, pointing at the target around Trevor's face.
-2. A shot only counts on Trevor's head or neck, not anywhere in the box. A hit leaves a dot, and the next card rises from it to above his head.
-3. "Off the clock" on the About photo launches an alarm clock that falls, shatters, and reassembles into the next card.
+2. A shot only counts on Trevor's head or neck, not anywhere in the box. A hit leaves a blood-red dot, and the next clue rises from it to sit above his head in red lettering that drips.
+3. "Off the clock" on the About photo launches an alarm clock that falls below the photo, shatters, and reassembles into the next clue underneath it.
 4. A star in the skills ticker drops out and cracks open like a fortune cookie, pointing to the "Classified" card now in the contact cabinet.
 
 Opening the Classified card clears every clue so the hunt can be played again. Once found, the card stays in the cabinet on later visits (`localStorage` key `tf-hunt-found`). Run `localStorage.removeItem('tf-hunt-found')` to hide it again. The hunt logic and animations live in `src/components/Hunt.astro`.

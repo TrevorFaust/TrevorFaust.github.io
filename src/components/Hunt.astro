@@ -419,13 +419,14 @@
       const box = relative(reticle, figure);
       const left = Math.max(4, Math.min(figure.clientWidth - note.offsetWidth - 4, box.cx - note.offsetWidth / 2));
       note.style.left = px(left);
-      note.style.top = px(Math.max(4, box.y - note.offsetHeight - 6));
+      note.style.top = px(Math.max(4, box.y - note.offsetHeight + 10));
     };
 
     if (!motion) {
       figure.append(note);
       place();
       placers.push(place);
+      bleed(note);
       return;
     }
 
@@ -468,11 +469,44 @@
       ],
       { duration: 1400 },
     );
+    bleed(note);
+  };
+
+  /* Blood drips hang off the bottoms of the letters in the "target down" clue */
+  const bleed = (note: HTMLElement) => {
+    const box = note.getBoundingClientRect();
+    const bottoms = new Map<number, number>();
+    for (const p of letterPoints(note)) {
+      const col = Math.round((p.x - box.left) / 2) * 2;
+      bottoms.set(col, Math.max(bottoms.get(col) ?? 0, p.y - box.top));
+    }
+    const lowest = Math.max(0, ...bottoms.values());
+    const columns = [...bottoms.entries()]
+      .filter(([, y]) => y >= lowest - 12)
+      .sort(() => Math.random() - 0.5);
+
+    const picked: [number, number][] = [];
+    for (const column of columns) {
+      if (picked.length >= 11) break;
+      if (picked.every(([x]) => Math.abs(x - column[0]) > 16)) picked.push(column);
+    }
+
+    picked.forEach(([x, y], i) => {
+      const drip = document.createElement("i");
+      drip.className = "hunt-drip";
+      drip.style.left = px(x - 1);
+      drip.style.top = px(y - 1);
+      drip.style.setProperty("--len", px(5 + Math.random() * (i % 3 === 0 ? 30 : 14)));
+      drip.style.setProperty("--w", px(1.8 + Math.random() * 1.6));
+      drip.style.setProperty("--dur", `${1.8 + Math.random() * 2.4}s`);
+      drip.style.setProperty("--delay", `${Math.random() * 1.4}s`);
+      note.append(drip);
+    });
   };
 
   /* Clue 3: an alarm clock pops up, falls, shatters, and the pieces become the next card */
   const breakClock = async (tag: HTMLElement) => {
-    const media = tag.parentElement;
+    const media = tag.closest<HTMLElement>(".about__media");
     if (!media) return;
     const note = makeNote(3, "clock");
     media.append(note);
@@ -875,24 +909,83 @@
   .hunt-note--target {
     z-index: 4;
     max-width: min(22rem, 96%);
+    padding: 0 0 1.6rem;
+    background: none;
+    box-shadow: none;
+    color: #8b1116;
     text-align: center;
     transform-origin: 50% 100%;
   }
 
-  .hunt-note--target::before {
-    left: calc(50% - 5px);
-    bottom: -4px;
+  .hunt-note--target::before,
+  .hunt-note--clock::before {
+    display: none;
+  }
+
+  .hunt-note--target .hunt-note__label {
+    color: #8b1116;
+    text-shadow: 0 0 6px rgba(255, 245, 235, 0.8);
+  }
+
+  .hunt-note--target .hunt-note__text {
+    font-style: italic;
+    font-size: 1.3rem;
+    line-height: 1.15;
+    background: linear-gradient(180deg, #a3161c 0%, #7c0d12 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 5px rgba(255, 245, 235, 0.75));
+  }
+
+  .hunt-drip {
+    position: absolute;
+    width: var(--w, 2.4px);
+    height: 0;
+    border-radius: 0 0 2px 2px;
+    background: linear-gradient(180deg, #8f1217, #6e0b10);
+    pointer-events: none;
+    animation: hunt-drip var(--dur, 2.4s) cubic-bezier(0.3, 0.6, 0.35, 1) var(--delay, 0s) forwards;
+  }
+
+  .hunt-drip::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -3.5px;
+    width: calc(var(--w, 2.4px) + 2.6px);
+    height: calc(var(--w, 2.4px) + 3.4px);
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    background: #7c0d12;
+    transform: translateX(-50%);
+  }
+
+  @keyframes hunt-drip {
+    to {
+      height: var(--len, 14px);
+    }
   }
 
   .hunt-note--clock {
-    left: 1.25rem;
-    bottom: 3.9rem;
+    position: relative;
     z-index: 4;
+    margin-top: 1.1rem;
+    max-width: 100%;
+    padding: 0 0 0 0.9rem;
+    border-left: 2px solid var(--accent);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--ink);
   }
 
-  .hunt-note--clock::before {
-    left: 1.4rem;
-    bottom: -4px;
+  .hunt-note--clock .hunt-note__label {
+    color: var(--accent);
+  }
+
+  .hunt-note--clock .hunt-note__text {
+    font-style: italic;
+    font-size: 1.3rem;
   }
 
   /* Shot on the face target */
@@ -971,10 +1064,10 @@
     width: 9px;
     height: 9px;
     margin: -4.5px;
-    background: #1f3d34;
+    background: #7c0d12;
     box-shadow:
       0 0 0 2px rgba(248, 245, 238, 0.85),
-      0 0 10px 2px rgba(47, 156, 114, 0.55);
+      0 0 10px 2px rgba(139, 17, 22, 0.45);
   }
 
   .hunt-miss {
