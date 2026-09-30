@@ -9,7 +9,7 @@
   const live = document.querySelector<HTMLElement>("[data-hunt-live]");
 
   const clues: Record<Clue, [string, string]> = {
-    1: ["Clue 1 of 4", "Lock on. Take your shot, right on my face."],
+    1: ["Clue 1 of 4", "Lock on. Take a shot on the target to the right."],
     2: ["Clue 2 of 4", "Target down. Now find where I go off the clock."],
     3: ["Clue 3 of 4", "Time's up. Catch a ✦ as it rolls through the ribbon."],
     4: ["Clue 4 of 4 · Your fortune", "A Classified file just landed in my contact cabinet."],
@@ -58,12 +58,12 @@
     window.dispatchEvent(new CustomEvent("hunt:step", { detail: next }));
   };
 
-  const announce = (clue: Clue) => {
-    if (live) live.textContent = clues[clue].join(". ");
+  const announce = (clue: Clue, text = clues[clue][1]) => {
+    if (live) live.textContent = `${clues[clue][0]}. ${text}`;
   };
 
-  const makeNote = (clue: Clue, variant: string) => {
-    const [label, text] = clues[clue];
+  const makeNote = (clue: Clue, variant: string, text = clues[clue][1]) => {
+    const [label] = clues[clue];
     const note = document.createElement("div");
     note.className = `hunt-note hunt-note--${variant}`;
     const labelEl = document.createElement("span");
@@ -74,7 +74,7 @@
     textEl.textContent = text;
     note.append(labelEl, textEl);
     pieces.push(note);
-    announce(clue);
+    announce(clue, text);
     return note;
   };
 
@@ -90,21 +90,241 @@
       { duration: 450, easing: "ease-out" },
     );
 
-  /* Clue 1: a card pops out of the status line and hangs under it */
-  const popFromStatus = (status: HTMLElement) => {
+  type Point = { x: number; y: number };
+
+  const SPARK_COLORS = ["#e0a526", "#f0c05a", "#e0663f", "#2f9c72", "#3d6f5f"];
+  const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2);
+
+  /* Points that trace the clue's letters, in page coordinates, so sparks can settle onto them */
+  const letterPoints = (note: HTMLElement): Point[] => {
+    const textEl = note.querySelector<HTMLElement>(".hunt-note__text");
+    const node = textEl?.firstChild;
+    if (!textEl || !(node instanceof Text)) return [];
+    const box = textEl.getBoundingClientRect();
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(box.width);
+    canvas.height = Math.ceil(box.height);
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx || !canvas.width || !canvas.height) return [];
+    const style = getComputedStyle(textEl);
+    ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    ctx.textBaseline = "alphabetic";
+
+    const range = document.createRange();
+    const text = node.textContent ?? "";
+    for (const word of text.matchAll(/\S+/g)) {
+      range.setStart(node, word.index ?? 0);
+      range.setEnd(node, (word.index ?? 0) + word[0].length);
+      const r = range.getBoundingClientRect();
+      const metrics = ctx.measureText(word[0]);
+      const ascent = metrics.fontBoundingBoxAscent ?? r.height * 0.8;
+      const descent = metrics.fontBoundingBoxDescent ?? r.height * 0.2;
+      const baseline = r.top + (r.height - ascent - descent) / 2 + ascent;
+      ctx.fillText(word[0], r.left - box.left, baseline - box.top);
+    }
+
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const points: Point[] = [];
+    for (let y = 0; y < canvas.height; y += 2) {
+      for (let x = 0; x < canvas.width; x += 2) {
+        if (data[(y * canvas.width + x) * 4 + 3] > 140) points.push({ x: box.left + x, y: box.top + y });
+      }
+    }
+    for (let i = points.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [points[i], points[j]] = [points[j], points[i]];
+    }
+    return points.slice(0, 1200);
+  };
+
+  /* A rocket leaves the dot, bursts, and the sparks drift down into the clue's letters */
+  const launchFirework = (host: HTMLElement, from: Point, targets: Point[], onWritten: () => void) =>
+    new Promise<void>((resolve) => {
+      const rect = host.getBoundingClientRect();
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const canvas = document.createElement("canvas");
+      canvas.className = "hunt-fireworks";
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      host.append(canvas);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        canvas.remove();
+        onWritten();
+        resolve();
+        return;
+      }
+      ctx.scale(dpr, dpr);
+
+      const ROCKET = 700;
+      const BURST = 650;
+      const FORM = 1100;
+      const SETTLE = 700;
+      const start = { x: from.x - rect.left, y: from.y - rect.top };
+      const apex = { x: Math.min(rect.width - 80, start.x + 180), y: Math.max(80, start.y - 300) };
+
+      type Spark = {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        color: string;
+        size: number;
+        delay: number;
+        target?: Point;
+        from?: Point;
+      };
+      const trail: (Spark & { life: number })[] = [];
+      let sparks: Spark[] = [];
+      let exploded = false;
+      let written = false;
+      const t0 = performance.now();
+      let last = t0;
+
+      const dot = (x: number, y: number, size: number, color: string, alpha: number, glow = 2.8) => {
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha * 0.22;
+        ctx.beginPath();
+        ctx.arc(x, y, size * glow, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      };
+
+      const explode = () => {
+        const make = (target?: Point): Spark => {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1.5 + Math.random() * 5;
+          return {
+            x: apex.x,
+            y: apex.y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)],
+            size: target ? 0.8 + Math.random() * 0.45 : 1.4 + Math.random() * 1.2,
+            delay: Math.random() * 220,
+            target: target && { x: target.x - rect.left, y: target.y - rect.top },
+          };
+        };
+        sparks = [...targets.map((target) => make(target)), ...Array.from({ length: 90 }, () => make())];
+      };
+
+      const frame = (now: number) => {
+        const t = now - t0;
+        const dt = Math.min(2.5, (now - last) / 16.67);
+        last = now;
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = `rgba(0, 0, 0, ${t < ROCKET + BURST ? 0.26 : 0.42})`;
+        ctx.fillRect(0, 0, rect.width, rect.height);
+        ctx.globalCompositeOperation = "source-over";
+
+        if (t < ROCKET) {
+          const k = 1 - (1 - t / ROCKET) ** 2;
+          const x = start.x + (apex.x - start.x) * k + Math.sin(t / 45) * 1.5;
+          const y = start.y + (apex.y - start.y) * k;
+          dot(x, y, 3, "#e0a526", 1);
+          for (let i = 0; i < 3; i++) {
+            trail.push({
+              x,
+              y,
+              vx: (Math.random() - 0.5) * 0.8,
+              vy: 0.6 + Math.random() * 0.8,
+              color: SPARK_COLORS[i % 3],
+              size: 1 + Math.random(),
+              delay: 0,
+              life: 1,
+            });
+          }
+        } else if (!exploded) {
+          exploded = true;
+          explode();
+        }
+
+        for (const s of trail) {
+          if (s.life <= 0) continue;
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+          s.vy += 0.05 * dt;
+          s.life -= 0.035 * dt;
+          dot(s.x, s.y, s.size, s.color, Math.max(0, s.life));
+        }
+
+        if (exploded) {
+          const te = t - ROCKET;
+          if (te < 220) {
+            const flash = 1 - te / 220;
+            dot(apex.x, apex.y, 6 + te * 0.12, "#f7d98b", flash);
+          }
+
+          const settle = Math.max(0, te - BURST - FORM) / SETTLE;
+          for (const s of sparks) {
+            const forming = s.target && te > BURST + s.delay;
+            if (!forming) {
+              const drag = 0.955 ** dt;
+              s.vx *= drag;
+              s.vy = s.vy * drag + 0.055 * dt;
+              s.x += s.vx * dt;
+              s.y += s.vy * dt;
+            } else if (s.target) {
+              s.from ??= { x: s.x, y: s.y };
+              const k = easeInOut(Math.min(1, (te - BURST - s.delay) / (FORM - 220)));
+              const sway = (1 - k) * 4 * Math.sin(te / 90 + s.delay);
+              s.x = s.from.x + (s.target.x - s.from.x) * k + sway;
+              s.y = s.from.y + (s.target.y - s.from.y) * k;
+            }
+            const alpha = s.target
+              ? (1 - settle) * (0.75 + Math.random() * 0.25)
+              : Math.max(0, 1 - te / (BURST + 450));
+            if (alpha > 0) dot(s.x, s.y, s.size, s.color, alpha, s.target ? 2 : 2.8);
+          }
+
+          if (!written && te > BURST + FORM * 0.8) {
+            written = true;
+            onWritten();
+          }
+          if (te > BURST + FORM + SETTLE) {
+            canvas.remove();
+            resolve();
+            return;
+          }
+        }
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    });
+
+  /* Clue 1: a firework shoots out of the green dot and writes the clue under it */
+  const popFromStatus = async (status: HTMLElement) => {
     const host = status.parentElement;
-    if (!host) return;
-    statusNote = makeNote(1, "status");
+    const hero = status.closest<HTMLElement>("[data-hero]");
+    if (!host || !hero) return;
+    const wide = window.matchMedia("(min-width: 960px)").matches;
+    statusNote = makeNote(
+      1,
+      "status",
+      wide ? clues[1][1] : "Lock on. Take a shot on the target up top.",
+    );
     host.append(statusNote);
     if (!motion) return;
-    play(
-      statusNote,
-      [
-        { opacity: 0, transform: "translateY(-12px) scale(0.2)" },
-        { opacity: 1, transform: "translateY(3px) scale(1.04)", offset: 0.65 },
-        { opacity: 1, transform: "none" },
-      ],
-      { duration: 650, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+
+    const note = statusNote;
+    note.style.opacity = "0";
+    await document.fonts?.ready;
+    const dotEl = status.querySelector(".hero__status-dot") ?? status;
+    const d = dotEl.getBoundingClientRect();
+    await launchFirework(hero, { x: d.left + d.width / 2, y: d.top + d.height / 2 }, letterPoints(note), () =>
+      play(
+        note,
+        [
+          { opacity: 0, filter: "blur(3px)" },
+          { opacity: 1, filter: "blur(0px)" },
+        ],
+        { duration: 700, easing: "ease-out" },
+      ),
     );
   };
 
@@ -563,7 +783,9 @@
     color: #f4f1ea;
     box-shadow: 0 18px 40px -18px rgba(26, 28, 24, 0.65);
     text-align: left;
-    pointer-events: none;
+    pointer-events: auto;
+    user-select: text;
+    cursor: text;
   }
 
   .hunt-note::before {
@@ -595,15 +817,50 @@
   }
 
   .hunt-note--status {
-    left: -0.2rem;
-    top: calc(100% + 0.8rem);
-    max-width: min(22rem, calc(100vw - 2.5rem));
-    transform-origin: 0.7rem -0.6rem;
+    left: 0;
+    top: calc(100% + 0.9rem);
+    max-width: min(30rem, calc(100vw - 2.5rem));
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    color: #24453b;
   }
 
   .hunt-note--status::before {
-    left: 0.55rem;
-    top: -4px;
+    display: none;
+  }
+
+  .hunt-note--status .hunt-note__label {
+    color: #a8750f;
+  }
+
+  .hunt-note--status .hunt-note__text {
+    font-style: italic;
+    font-size: 1.3rem;
+    line-height: 1.15;
+    text-shadow:
+      0 0 1px rgba(224, 165, 38, 0.9),
+      0 0 10px rgba(224, 165, 38, 0.55),
+      0 0 22px rgba(224, 102, 63, 0.25);
+    animation: hunt-glow 2.6s ease-in-out infinite;
+  }
+
+  .hunt-fireworks {
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  @keyframes hunt-glow {
+    50% {
+      text-shadow:
+        0 0 1px rgba(224, 165, 38, 0.95),
+        0 0 14px rgba(240, 192, 90, 0.8),
+        0 0 30px rgba(224, 102, 63, 0.35);
+    }
   }
 
   @media (max-width: 959px) {
@@ -771,7 +1028,7 @@
     z-index: 4;
     translate: -50% 0;
     rotate: -1.5deg;
-    pointer-events: none;
+    user-select: text;
   }
 
   @media (max-width: 700px) {
