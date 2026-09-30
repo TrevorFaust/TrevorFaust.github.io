@@ -200,17 +200,49 @@ import aboutPortrait from "../assets/portrait-about.png";
     cursor: pointer;
     background: var(--accent);
     color: #f4f1ea;
-    animation: tag-hint 1.6s var(--ease-in-out) infinite;
+    animation:
+      tag-hint 1.6s var(--ease-in-out) infinite,
+      tag-ring 1.6s linear infinite;
   }
 
   :global(html[data-hunt="2"]) .about__tag:hover {
-    animation: none;
     transform: scale(1.08);
   }
 
   @keyframes tag-hint {
     50% {
       box-shadow: 0 0 0 7px rgba(var(--accent-rgb), 0.22);
+    }
+  }
+
+  /* Bursts of rattling with a pause between, like an alarm going off */
+  @keyframes tag-ring {
+    0%,
+    40%,
+    100% {
+      rotate: 0deg;
+      translate: 0 0;
+    }
+    4%,
+    12%,
+    20%,
+    28%,
+    36% {
+      rotate: -7deg;
+      translate: -1.5px -1px;
+    }
+    8%,
+    16%,
+    24%,
+    32% {
+      rotate: 7deg;
+      translate: 1.5px -1px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html[data-hunt="2"]) .about__tag {
+      animation: tag-hint 1.6s var(--ease-in-out) infinite;
     }
   }
 

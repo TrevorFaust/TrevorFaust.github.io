@@ -96,7 +96,7 @@
   const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2);
 
   /* Points that trace the clue's letters, in page coordinates, so sparks can settle onto them */
-  const letterPoints = (note: HTMLElement, limit = 1200): Point[] => {
+  const letterPoints = (note: HTMLElement): Point[] => {
     const textEl = note.querySelector<HTMLElement>(".hunt-note__text");
     const node = textEl?.firstChild;
     if (!textEl || !(node instanceof Text)) return [];
@@ -134,7 +134,7 @@
       const j = Math.floor(Math.random() * (i + 1));
       [points[i], points[j]] = [points[j], points[i]];
     }
-    return points.slice(0, limit);
+    return points.slice(0, 1200);
   };
 
   /* A rocket leaves the dot, bursts, and the sparks drift down into the clue's letters */
@@ -433,7 +433,6 @@
       stage.append(note);
       place();
       placers.push(place);
-      bleed(note);
       return;
     }
 
@@ -477,64 +476,6 @@
       ],
       { duration: 1400 },
     );
-    bleed(note);
-  };
-
-  /* Blood drips hang off the bottoms of the letters in the "target down" clue */
-  const bleed = (note: HTMLElement) => {
-    const textEl = note.querySelector<HTMLElement>(".hunt-note__text");
-    const node = textEl?.firstChild;
-    if (!textEl || !node) return;
-    const box = note.getBoundingClientRect();
-    const size = parseFloat(getComputedStyle(textEl).fontSize);
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    const lines = [...range.getClientRects()]
-      .map((r) => ({ top: r.top - box.top, bottom: r.bottom - box.top }))
-      .filter((line, i, all) => all.findIndex((other) => Math.abs(other.top - line.top) < 2) === i)
-      .sort((a, b) => a.top - b.top);
-    if (!lines.length) return;
-
-    const bottoms = lines.map(() => new Map<number, number>());
-    for (const p of letterPoints(note, Infinity)) {
-      const y = p.y - box.top;
-      const line = lines.findIndex((l) => y >= l.top - 2 && y <= l.bottom + 2);
-      if (line < 0) continue;
-      const col = Math.round((p.x - box.left) / 2) * 2;
-      bottoms[line].set(col, Math.max(bottoms[line].get(col) ?? 0, y));
-    }
-
-    bottoms.forEach((columns, line) => {
-      const { top, bottom } = lines[line];
-      const last = line === lines.length - 1;
-      const tips = [...columns.entries()]
-        .filter(([x, y]) => {
-          if (y < top + (bottom - top) * 0.55) return false;
-          for (let dx = -6; dx <= 6; dx += 2) if ((columns.get(x + dx) ?? 0) > y) return false;
-          return true;
-        })
-        .sort((a, b) => b[1] - a[1] + (Math.random() - 0.5) * 8);
-
-      const picked: [number, number][] = [];
-      for (const tip of tips) {
-        if (picked.length >= (last ? 9 : 5)) break;
-        if (picked.every(([x]) => Math.abs(x - tip[0]) > 18)) picked.push(tip);
-      }
-
-      picked.forEach(([x, y], i) => {
-        const width = size * (0.16 + Math.random() * 0.1);
-        const long = last && i % 2 === 0;
-        const drip = document.createElement("i");
-        drip.className = "hunt-drip";
-        drip.style.left = px(x + 1 - width / 2);
-        drip.style.top = px(y - 3);
-        drip.style.setProperty("--w", px(width));
-        drip.style.setProperty("--len", px(long ? 16 + Math.random() * 26 : 5 + Math.random() * (last ? 12 : 6)));
-        drip.style.setProperty("--dur", `${(long ? 2.6 : 1.6) + Math.random() * 2.2}s`);
-        drip.style.setProperty("--delay", `${Math.random() * 1.2}s`);
-        note.append(drip);
-      });
-    });
   };
 
   /* Clue 3: an alarm clock pops up, falls, shatters, and the pieces become the next card */
@@ -942,7 +883,7 @@
   .hunt-note--target {
     z-index: 4;
     max-width: min(23rem, calc(100vw - 1.5rem));
-    padding: 0 0 1.8rem;
+    padding: 0 0 0.9rem;
     background: none;
     box-shadow: none;
     color: #8b1116;
@@ -971,35 +912,6 @@
     color: transparent;
     filter: drop-shadow(0 1px 0 rgba(70, 0, 4, 0.55)) drop-shadow(0 0 6px rgba(255, 245, 235, 0.7));
   }
-
-  .hunt-drip {
-    position: absolute;
-    width: var(--w, 3px);
-    height: 0;
-    border-radius: 0 0 40% 40%;
-    background: linear-gradient(90deg, #7a080d, #c4141c 40%, #e8474d 55%, #a50e15 75%, #7a080d);
-    pointer-events: none;
-    animation: hunt-drip var(--dur, 2.4s) cubic-bezier(0.3, 0.6, 0.35, 1) var(--delay, 0s) forwards;
-  }
-
-  .hunt-drip::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: calc(var(--w, 3px) * -0.9);
-    width: calc(var(--w, 3px) * 1.7);
-    height: calc(var(--w, 3px) * 2.1);
-    border-radius: 50% 50% 50% 50% / 38% 38% 62% 62%;
-    background: radial-gradient(circle at 38% 62%, #ef5a60 0 14%, #c4141c 34%, #7a080d 100%);
-    transform: translateX(-50%);
-  }
-
-  @keyframes hunt-drip {
-    to {
-      height: var(--len, 14px);
-    }
-  }
-
   .hunt-note--clock {
     position: relative;
     z-index: 4;
