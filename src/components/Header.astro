@@ -4,31 +4,48 @@ import { site } from "../data/site";
 import logo from "../assets/logo-tf.png";
 ---
 
-<header class="nav">
+<header class="nav" data-nav>
   <div class="shell nav__inner">
     <a class="nav__brand" href="#top" aria-label={`${site.name} home`}>
       <Image class="nav__mark" src={logo} alt="" widths={[96, 144, 192]} sizes="52px" />
     </a>
     <nav class="nav__links" aria-label="Primary">
-      <a href="#projects">Projects</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+      <a href="#projects"><span>01</span>Projects</a>
+      <a href="#about"><span>02</span>About</a>
+      <a href="#contact"><span>03</span>Contact</a>
     </nav>
     <a class="nav__cta" href={site.links.linkedin} target="_blank" rel="noopener noreferrer">
-      LinkedIn
+      LinkedIn <span aria-hidden="true">↗</span>
     </a>
   </div>
 </header>
 
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-nav]");
+  if (nav) {
+    const update = () => nav.classList.toggle("is-scrolled", window.scrollY > 24);
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+  }
+</script>
+
 <style>
   .nav {
-    position: sticky;
-    top: 0;
+    position: fixed;
+    inset: 0 0 auto;
     z-index: 50;
     height: var(--nav-h);
-    backdrop-filter: blur(14px);
-    background: rgba(230, 227, 219, 0.78);
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid transparent;
+    transition:
+      background 0.4s ease,
+      border-color 0.4s ease,
+      backdrop-filter 0.4s ease;
+  }
+
+  .nav.is-scrolled {
+    background: rgba(7, 11, 11, 0.62);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(16px) saturate(1.3);
   }
 
   .nav__inner {
@@ -46,61 +63,81 @@ import logo from "../assets/logo-tf.png";
     min-width: 2.75rem;
     text-decoration: none;
     border-radius: 0.35rem;
-    transition: opacity 0.2s ease;
+    transition:
+      opacity 0.2s ease,
+      transform 0.4s var(--ease);
   }
 
   .nav__brand:hover {
-    opacity: 0.72;
-  }
-
-  .nav__brand:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    transform: skewX(-8deg);
   }
 
   .nav__mark {
     display: block;
-    height: 2.2rem;
+    height: 2rem;
     width: auto;
+    filter: invert(1) brightness(0.95) sepia(0.15);
   }
 
   .nav__links {
     display: none;
-    gap: 1.75rem;
+    gap: 0.4rem;
+    padding: 0.3rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(7, 11, 11, 0.4);
+    backdrop-filter: blur(12px);
   }
 
   .nav__links a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
     text-decoration: none;
     color: var(--ink-soft);
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: color 0.2s ease;
+    font-size: 0.88rem;
+    transition:
+      color 0.25s ease,
+      background 0.25s ease;
+  }
+
+  .nav__links a span {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--sun);
+    opacity: 0.8;
   }
 
   .nav__links a:hover {
     color: var(--ink);
+    background: var(--surface-strong);
   }
 
   .nav__cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.4rem;
     min-height: 2.5rem;
-    padding: 0.55rem 1rem;
+    padding: 0.5rem 1.05rem;
     border-radius: 999px;
-    background: var(--ink);
-    color: var(--bg);
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
     text-decoration: none;
-    font-size: 0.88rem;
-    font-weight: 600;
+    font-size: 0.86rem;
+    font-weight: 500;
     transition:
-      transform 0.25s var(--ease),
-      background 0.2s ease;
+      border-color 0.25s ease,
+      background 0.25s ease,
+      color 0.25s ease;
   }
 
   .nav__cta:hover {
-    background: var(--accent);
-    transform: translateY(-1px);
+    border-color: transparent;
+    background: var(--ink);
+    color: var(--bg);
   }
 
   @media (min-width: 768px) {

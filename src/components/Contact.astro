@@ -4,181 +4,226 @@ import { site } from "../data/site";
 const prettyUrl = (url: string) =>
   url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
 
-const contacts = [
-  {
-    kind: "Email",
-    value: site.email,
-    href: `mailto:${site.email}`,
-    openLabel: "Open email",
-    external: false,
-  },
-  {
-    kind: "LinkedIn",
-    value: prettyUrl(site.links.linkedin),
-    href: site.links.linkedin,
-    openLabel: "Open LinkedIn profile",
-    external: true,
-  },
-  {
-    kind: "Substack",
-    value: prettyUrl(site.links.substack),
-    href: site.links.substack,
-    openLabel: "Open Substack",
-    external: true,
-  },
-  {
-    kind: "GitHub",
-    value: prettyUrl(site.links.github),
-    href: site.links.github,
-    openLabel: "Open GitHub profile",
-    external: true,
-  },
+const links = [
+  { kind: "LinkedIn", value: prettyUrl(site.links.linkedin), href: site.links.linkedin },
+  { kind: "Substack", value: prettyUrl(site.links.substack), href: site.links.substack },
+  { kind: "GitHub", value: prettyUrl(site.links.github), href: site.links.github },
 ];
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
-  <div class="shell contact__panel reveal">
-    <p class="section-label">Contact</p>
-    <h2 id="contact-title" class="display contact__title">
-      Find me here.<br />Pick a link.
+  <div class="shell">
+    <p class="section-label reveal"><span class="section-label__num">03</span>Contact</p>
+    <h2 id="contact-title" class="display contact__title reveal reveal-delay-1">
+      Find me here. <em>Pick a link.</em>
     </h2>
-    <p class="lead">
+    <p class="lead reveal reveal-delay-2">
       Reach out about data analytics roles in sports, technology, or energy and
       sustainability, or to talk shop about building things people use.
     </p>
 
-    <div class="contact__links">
+    <a class="contact__email reveal reveal-delay-3" href={`mailto:${site.email}`}>
+      <span class="contact__email-kind">Email</span>
+      <span class="contact__email-value">{site.email}</span>
+      <span class="contact__email-arrow" aria-hidden="true">→</span>
+    </a>
+
+    <ul class="contact__links">
       {
-        contacts.map((contact) => (
-          <article class="contact__card">
-            <div class="contact__top">
-              <p class="contact__kind">{contact.kind}</p>
-              <a
-                class="contact__open"
-                href={contact.href}
-                aria-label={contact.openLabel}
-                target={contact.external ? "_blank" : undefined}
-                rel={contact.external ? "noopener noreferrer" : undefined}
-              >
-                Open
-                <span aria-hidden="true">↗</span>
-              </a>
-            </div>
-            <p class="contact__value">{contact.value}</p>
-          </article>
+        links.map((link) => (
+          <li class="reveal">
+            <a class="contact__row" href={link.href} target="_blank" rel="noopener noreferrer">
+              <span class="contact__kind">{link.kind}</span>
+              <span class="contact__value">{link.value}</span>
+              <span class="contact__arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </div>
 </section>
 
 <footer class="footer">
   <div class="shell footer__inner">
     <p>© {new Date().getFullYear()} {site.name}</p>
-    <p>{site.location}</p>
+    <p class="footer__mid">Built with Astro · Deployed on GitHub Pages</p>
+    <p>{site.location} · {site.coordinates}</p>
   </div>
 </footer>
 
 <style>
-  .contact__panel {
-    padding: clamp(2rem, 5vw, 3.5rem);
-    border-radius: calc(var(--radius) + 0.5rem);
-    background:
-      linear-gradient(145deg, rgba(var(--accent-rgb), 0.12), transparent 40%),
-      var(--bg-elevated);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
+  .contact {
+    position: relative;
+    overflow: clip;
+  }
+
+  .contact::before {
+    content: "";
+    position: absolute;
+    right: -15%;
+    bottom: -30%;
+    width: 60vw;
+    height: 60vw;
+    max-width: 52rem;
+    max-height: 52rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--sun-rgb), 0.12), transparent 62%);
+    pointer-events: none;
   }
 
   .contact__title {
-    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-size: clamp(3rem, 9vw, 7.5rem);
+    max-width: 10ch;
+  }
+
+  .contact__email {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "kind arrow"
+      "value arrow";
+    align-items: center;
+    gap: 0.35rem 1.5rem;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+    border-block: 1px solid var(--line-strong);
+    text-decoration: none;
+  }
+
+  .contact__email-kind {
+    grid-area: kind;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .contact__email-value {
+    grid-area: value;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 6.2vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+    background: linear-gradient(90deg, var(--ink) 0%, var(--ink) 50%, #ffb48c 50%, #ff8466 100%);
+    background-size: 200% 100%;
+    background-position: 0 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: background-position 0.8s var(--ease);
+  }
+
+  .contact__email:hover .contact__email-value {
+    background-position: 100% 0;
+  }
+
+  .contact__email-arrow {
+    grid-area: arrow;
+    display: grid;
+    place-items: center;
+    width: clamp(3rem, 6vw, 4.5rem);
+    height: clamp(3rem, 6vw, 4.5rem);
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    font-size: 1.25rem;
+    transition:
+      background 0.35s ease,
+      color 0.35s ease,
+      transform 0.5s var(--ease);
+  }
+
+  .contact__email:hover .contact__email-arrow {
+    background: var(--grad-sun);
+    color: var(--bg);
+    border-color: transparent;
+    transform: rotate(-45deg);
   }
 
   .contact__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact__row {
     display: grid;
-    gap: 0.85rem;
-    margin-top: 2.25rem;
-  }
-
-  @media (min-width: 720px) {
-    .contact__links {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .contact__card {
-    display: grid;
-    gap: 0.45rem;
-    padding: 1.1rem 1.2rem;
-    border-radius: var(--radius);
-    background: rgba(255, 252, 247, 0.55);
-    border: 1px solid var(--line);
-    transition:
-      border-color 0.2s ease,
-      background 0.2s ease;
-  }
-
-  .contact__card:hover {
-    border-color: rgba(var(--accent-rgb), 0.3);
-    background: rgba(255, 252, 247, 0.9);
-  }
-
-  .contact__top {
-    display: flex;
+    grid-template-columns: 7rem 1fr auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition:
+      padding 0.45s var(--ease),
+      color 0.3s ease;
+  }
+
+  .contact__row:hover {
+    padding-left: 0.75rem;
   }
 
   .contact__kind {
-    margin: 0;
-    color: var(--ink-faint);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-  }
-
-  .contact__open {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    min-height: 2.75rem;
-    padding: 0 0.15rem;
-    color: var(--accent);
-    font-size: 0.88rem;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .contact__open:hover {
-    color: var(--accent-soft);
+    color: var(--sun);
   }
 
   .contact__value {
-    margin: 0;
-    font-weight: 600;
-    font-size: 1.05rem;
-    line-height: 1.4;
-    overflow-wrap: break-word;
-    cursor: text;
-    user-select: all;
-    -webkit-user-select: all;
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    color: var(--ink-soft);
+    overflow-wrap: anywhere;
+    transition: color 0.3s ease;
+  }
+
+  .contact__row:hover .contact__value {
+    color: var(--ink);
+  }
+
+  .contact__arrow {
+    color: var(--ink-faint);
+    transition:
+      transform 0.45s var(--ease),
+      color 0.3s ease;
+  }
+
+  .contact__row:hover .contact__arrow {
+    color: var(--sun);
+    transform: translate(3px, -3px);
+  }
+
+  @media (max-width: 560px) {
+    .contact__row {
+      grid-template-columns: 1fr auto;
+    }
+
+    .contact__kind {
+      grid-column: 1 / -1;
+    }
   }
 
   .footer {
-    padding-block: 2rem 3rem;
+    position: relative;
+    z-index: 1;
+    padding-block: 2rem 2.5rem;
     border-top: 1px solid var(--line);
   }
 
   .footer__inner {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem 1.5rem;
     color: var(--ink-faint);
-    font-size: 0.88rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   .footer p {

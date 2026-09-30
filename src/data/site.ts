@@ -5,6 +5,8 @@ export const site = {
   description:
     "Seattle data professional who builds sports tools and side projects. I turn messy data into things people can act on.",
   location: "Seattle, WA",
+  coordinates: "47.6062° N / 122.3321° W",
+  interests: ["Sports", "Technology", "Sustainability", "Energy"],
   email: "trevorfaus27@gmail.com",
   tagline:
     "I'm an engineer who can't leave an inefficient process alone. Give me a tedious or broken process and I'll design and ship a real system for it, from large-scale sports data platforms to job search automation.",
