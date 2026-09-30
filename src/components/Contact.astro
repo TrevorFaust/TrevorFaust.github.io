@@ -131,6 +131,9 @@ const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found
 <footer class="footer">
   <div class="shell footer__inner">
     <p>© {new Date().getFullYear()} {site.name}</p>
+    <button class="footer__hint" type="button" data-hunt-hint>
+      Psst. Click “Open to data analytics roles” up top and see what happens.
+    </button>
     <p>{site.location} · {site.coordinates}</p>
   </div>
 </footer>
@@ -166,8 +169,11 @@ const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found
     };
 
     const open = (index: number) => {
-      if (index === active) return;
       const card = cards[index];
+      if (index === active) {
+        if (card === secret) window.dispatchEvent(new CustomEvent("hunt:found"));
+        return;
+      }
       card.style.setProperty("--from-pos", String(positionOf(card)));
       card.classList.remove("is-pulling");
       void card.offsetWidth;
@@ -200,19 +206,27 @@ const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found
       });
     });
 
-    const revealSecret = () => {
+    const revealSecret = (animate: boolean) => {
       if (!secret || !secret.hidden) return;
       secret.hidden = false;
-      secret.classList.add("is-arriving");
-      secret.addEventListener("animationend", () => secret.classList.remove("is-arriving"), { once: true });
+      if (animate) {
+        secret.classList.add("is-arriving");
+        secret.addEventListener("animationend", () => secret.classList.remove("is-arriving"), { once: true });
+      }
       layout();
     };
 
     window.addEventListener("hunt:step", (event) => {
-      if ((event as CustomEvent<number>).detail >= 3) revealSecret();
+      if ((event as CustomEvent<number>).detail >= 4) revealSecret(true);
     });
 
-    if (Number(document.documentElement.dataset.hunt ?? 0) >= 3) revealSecret();
+    let foundBefore = false;
+    try {
+      foundBefore = localStorage.getItem("tf-hunt-found") === "1";
+    } catch {
+      /* storage can be blocked; the card just stays hidden until the hunt is played */
+    }
+    if (foundBefore) revealSecret(false);
     layout();
   }
 </script>
@@ -473,7 +487,7 @@ const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found
     background: #f4f1ea;
   }
 
-  :global(html[data-hunt="3"]) .cabinet__tab--secret {
+  :global(html[data-hunt="4"]) .cabinet__tab--secret {
     animation: secret-glow 1.8s var(--ease-in-out) infinite;
   }
 
@@ -581,6 +595,7 @@ const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found
   .footer__inner {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
     gap: 0.75rem 1.5rem;
     color: var(--ink-faint);
@@ -592,5 +607,40 @@ const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found
 
   .footer p {
     margin: 0;
+  }
+
+  .footer__hint {
+    margin: 0;
+    padding: 0.35rem 0.9rem;
+    border: 1px dashed rgba(var(--accent-rgb), 0.45);
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.05);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--accent);
+    cursor: pointer;
+    transition:
+      background 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .footer__hint:hover {
+    border-style: solid;
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.12);
+    color: var(--accent-deep);
+  }
+
+  @media (max-width: 760px) {
+    .footer__hint {
+      order: -1;
+      width: 100%;
+      border-radius: 0.8rem;
+      text-align: left;
+    }
   }
 </style>

@@ -8,15 +8,21 @@ import aboutPortrait from "../assets/portrait-about.png";
   <div class="shell about__grid">
     <div class="about__media reveal">
       <div class="about__photo">
-        <Image
-          class="about__image"
-          src={aboutPortrait}
-          alt={`${site.name} sitting on a rock in the mountains`}
-          widths={[360, 576]}
-          sizes="(min-width: 900px) 42vw, 100vw"
-        />
+        <div class="about__fade">
+          <Image
+            class="about__image"
+            src={aboutPortrait}
+            alt={`${site.name} sitting on a rock in the mountains`}
+            widths={[360, 576]}
+            sizes="(min-width: 900px) 36vw, 90vw"
+          />
+        </div>
       </div>
-      <span class="about__tag" aria-hidden="true">Off the clock</span>
+      <span class="about__corner about__corner--tl" aria-hidden="true"></span>
+      <span class="about__corner about__corner--br" aria-hidden="true"></span>
+      <button class="about__tag" type="button" data-hunt="clock" tabindex="-1" aria-hidden="true">
+        Off the clock
+      </button>
     </div>
 
     <div class="about__copy">
@@ -77,9 +83,7 @@ import aboutPortrait from "../assets/portrait-about.png";
 
     .about__media {
       position: sticky;
-      top: calc(var(--nav-h) + 1rem);
-      /* Bleed the photo out to the left edge of the viewport */
-      margin-left: calc((min(100vw - 3rem, var(--max)) - 100vw) / 2);
+      top: calc(var(--nav-h) + 2rem);
     }
   }
 
@@ -87,13 +91,41 @@ import aboutPortrait from "../assets/portrait-about.png";
     position: relative;
   }
 
-  /* Two nested masks: the wrapper fades top and bottom, the image fades toward the copy */
+  /* Nested masks so the fade reaches zero exactly at the frame edge, even while the image zooms */
   .about__photo {
     position: relative;
-    height: min(calc(100svh - var(--nav-h) - 2rem), 58rem);
-    min-height: 32rem;
+    aspect-ratio: 4 / 5;
+    max-height: calc(100svh - var(--nav-h) - 4rem);
+    min-height: 26rem;
+    width: 100%;
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.35) 5%,
+      rgba(0, 0, 0, 0.8) 11%,
+      #000 17%,
+      #000 83%,
+      rgba(0, 0, 0, 0.8) 89%,
+      rgba(0, 0, 0, 0.35) 95%,
+      transparent 100%
+    );
+  }
+
+  .about__fade {
+    position: absolute;
+    inset: 0;
     overflow: hidden;
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 80%, transparent 100%);
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.35) 5%,
+      rgba(0, 0, 0, 0.8) 11%,
+      #000 17%,
+      #000 83%,
+      rgba(0, 0, 0, 0.8) 89%,
+      rgba(0, 0, 0, 0.35) 95%,
+      transparent 100%
+    );
   }
 
   .about__image {
@@ -102,63 +134,81 @@ import aboutPortrait from "../assets/portrait-about.png";
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 45% 72%;
+    object-position: 50% 82%;
     filter: saturate(0.92) contrast(1.02);
-    mask-image: linear-gradient(
-      to right,
-      #000 0%,
-      #000 44%,
-      rgba(0, 0, 0, 0.75) 60%,
-      rgba(0, 0, 0, 0.35) 74%,
-      rgba(0, 0, 0, 0.1) 85%,
-      transparent 92%
-    );
-    transform: scale(1.02);
+    transform: scale(1.1) translateX(-4.5%);
     transition:
       transform 1.6s var(--ease),
       filter 0.8s ease;
   }
 
   .about__media:hover .about__image {
-    transform: scale(1.06);
+    transform: scale(1.14) translateX(-4.5%);
     filter: saturate(1) contrast(1.04);
   }
 
-  @media (max-width: 899px) {
-    .about__media {
-      margin-inline: calc((min(100vw - 3rem, var(--max)) - 100vw) / 2);
-    }
-
-    .about__photo {
-      height: min(80svh, 40rem);
-      min-height: 0;
-    }
-
-    .about__image {
-      mask-image: none;
-    }
+  .about__corner {
+    position: absolute;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0 solid rgba(26, 28, 24, 0.45);
+    z-index: 1;
+    pointer-events: none;
   }
 
-  @media (max-width: 640px) {
-    .about__media {
-      margin-inline: -1rem;
-    }
+  .about__corner--tl {
+    top: 0;
+    left: 0;
+    border-top-width: 1px;
+    border-left-width: 1px;
+  }
+
+  .about__corner--br {
+    right: 0;
+    bottom: 0;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
   }
 
   .about__tag {
     position: absolute;
-    right: 18%;
-    bottom: 12%;
-    z-index: 1;
+    left: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 2;
+    margin: 0;
     padding: 0.4rem 0.75rem;
+    border: 0;
     border-radius: 999px;
-    background: rgba(230, 227, 219, 0.72);
+    background: rgba(230, 227, 219, 0.78);
     backdrop-filter: blur(8px);
     font-family: var(--font-mono);
     font-size: 0.66rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--ink-soft);
+    cursor: default;
+    transition:
+      background 0.3s ease,
+      color 0.3s ease,
+      transform 0.4s var(--ease-spring);
+  }
+
+  :global(html[data-hunt="2"]) .about__tag {
+    cursor: pointer;
+    background: var(--accent);
+    color: #f4f1ea;
+    animation: tag-hint 1.6s var(--ease-in-out) infinite;
+  }
+
+  :global(html[data-hunt="2"]) .about__tag:hover {
+    animation: none;
+    transform: scale(1.08);
+  }
+
+  @keyframes tag-hint {
+    50% {
+      box-shadow: 0 0 0 7px rgba(var(--accent-rgb), 0.22);
+    }
   }
 
   .about__title {

@@ -1,64 +1,405 @@
-<div class="clue" data-clue role="status" aria-live="polite" hidden>
-  <p class="clue__label" data-clue-label></p>
-  <p class="clue__text" data-clue-text></p>
-  <button class="clue__close" type="button" aria-label="Dismiss clue" data-clue-close>×</button>
-</div>
+<p class="hunt-live" data-hunt-live aria-live="polite"></p>
 
 <script>
-  const STORAGE_KEY = "tf-hunt";
-  const clues: Record<number, [string, string]> = {
-    1: ["Clue 1 of 3", "Lock on. Click the square around my face up top."],
-    2: ["Clue 2 of 3", "Target acquired. Now catch one of the ✦ stars rolling through the ribbon."],
-    3: ["Clue 3 of 3", "Nice catch. Last stop is the filing cabinet at the bottom. A new card just slipped in."],
-    4: ["Hunt complete", "You already found the hidden card. The message still stands."],
+  type Clue = 1 | 2 | 3 | 4;
+
+  const FOUND_KEY = "tf-hunt-found";
+  const root = document.documentElement;
+  const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const live = document.querySelector<HTMLElement>("[data-hunt-live]");
+
+  const clues: Record<Clue, [string, string]> = {
+    1: ["Clue 1 of 4", "Lock on. Click the target around my face."],
+    2: ["Clue 2 of 4", "Target down. Now find where I go off the clock."],
+    3: ["Clue 3 of 4", "Time's up. Catch a ✦ as it rolls through the ribbon."],
+    4: ["Clue 4 of 4 · Your fortune", "A Classified file just landed in my contact cabinet."],
   };
 
-  const toast = document.querySelector<HTMLElement>("[data-clue]");
-  const label = document.querySelector<HTMLElement>("[data-clue-label]");
-  const text = document.querySelector<HTMLElement>("[data-clue-text]");
-  let hideTimer = 0;
+  const CLOCK_SVG = `<svg viewBox="0 0 64 72" aria-hidden="true">
+    <circle cx="14" cy="12" r="8" fill="#1a1c18" />
+    <circle cx="50" cy="12" r="8" fill="#1a1c18" />
+    <path d="M17 62 L11 70 M47 62 L53 70" stroke="#1a1c18" stroke-width="4" stroke-linecap="round" />
+    <circle cx="32" cy="40" r="27" fill="#f6f2e9" stroke="#1a1c18" stroke-width="4" />
+    <path d="M32 17v5M32 58v5M9 40h5M50 40h5" stroke="#3d6f5f" stroke-width="3" stroke-linecap="round" />
+    <line class="hunt-clock__hour" x1="32" y1="40" x2="32" y2="27" stroke="#1a1c18" stroke-width="3.5" stroke-linecap="round" />
+    <line class="hunt-clock__minute" x1="32" y1="40" x2="45" y2="40" stroke="#3d6f5f" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="32" cy="40" r="3" fill="#1a1c18" />
+  </svg>`;
 
-  const readStep = () => {
-    try {
-      return Number(localStorage.getItem(STORAGE_KEY) ?? 0) || 0;
-    } catch {
-      return 0;
-    }
+  const STAR_SVG = `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M50 0C54 34 66 46 100 50C66 54 54 66 50 100C46 66 34 54 0 50C34 46 46 34 50 0Z" />
+  </svg>`;
+
+  const CLOCK_W = 72;
+  const CLOCK_H = 81;
+
+  let step = 0;
+  let pieces: HTMLElement[] = [];
+  let placers: (() => void)[] = [];
+  let takenStar: HTMLElement | null = null;
+  let statusNote: HTMLElement | null = null;
+
+  const px = (n: number) => `${n}px`;
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const play = (el: Element, frames: Keyframe[], options: KeyframeAnimationOptions) =>
+    el.animate(frames, { fill: "both", ...options }).finished.catch(() => undefined);
+
+  const relative = (el: Element, host: Element) => {
+    const a = el.getBoundingClientRect();
+    const h = host.getBoundingClientRect();
+    const x = a.left - h.left;
+    const y = a.top - h.top;
+    return { x, y, w: a.width, h: a.height, cx: x + a.width / 2, cy: y + a.height / 2 };
   };
-
-  let step = readStep();
 
   const setStep = (next: number) => {
     step = next;
-    document.documentElement.dataset.hunt = String(step);
-    try {
-      localStorage.setItem(STORAGE_KEY, String(step));
-    } catch {
-      /* private browsing can block storage; the hunt still works for this visit */
+    root.dataset.hunt = String(next);
+    window.dispatchEvent(new CustomEvent("hunt:step", { detail: next }));
+  };
+
+  const announce = (clue: Clue) => {
+    if (live) live.textContent = clues[clue].join(". ");
+  };
+
+  const makeNote = (clue: Clue, variant: string) => {
+    const [label, text] = clues[clue];
+    const note = document.createElement("div");
+    note.className = `hunt-note hunt-note--${variant}`;
+    const labelEl = document.createElement("span");
+    labelEl.className = "hunt-note__label";
+    labelEl.textContent = label;
+    const textEl = document.createElement("span");
+    textEl.className = "hunt-note__text";
+    textEl.textContent = text;
+    note.append(labelEl, textEl);
+    pieces.push(note);
+    announce(clue);
+    return note;
+  };
+
+  const nudge = (el: Element) =>
+    el.animate(
+      [
+        { rotate: "0deg", translate: "0 0" },
+        { rotate: "-2deg", translate: "-6px 0" },
+        { rotate: "1.5deg", translate: "5px 0" },
+        { rotate: "-0.5deg", translate: "-2px 0" },
+        { rotate: "0deg", translate: "0 0" },
+      ],
+      { duration: 450, easing: "ease-out" },
+    );
+
+  /* Clue 1: a card pops out of the status line and hangs under it */
+  const popFromStatus = (status: HTMLElement) => {
+    const host = status.parentElement;
+    if (!host) return;
+    statusNote = makeNote(1, "status");
+    host.append(statusNote);
+    if (!motion) return;
+    play(
+      statusNote,
+      [
+        { opacity: 0, transform: "translateY(-12px) scale(0.2)" },
+        { opacity: 1, transform: "translateY(3px) scale(1.04)", offset: 0.65 },
+        { opacity: 1, transform: "none" },
+      ],
+      { duration: 650, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    );
+  };
+
+  /* Clue 2: a shot lands on the target, then the next card rises from the hit to above my head */
+  const shoot = async (reticle: HTMLElement, event: MouseEvent) => {
+    const figure = reticle.parentElement;
+    if (!figure) return;
+    const f = figure.getBoundingClientRect();
+    const r = relative(reticle, figure);
+    const hasPoint = event.clientX !== 0 || event.clientY !== 0;
+    const hitX = hasPoint ? event.clientX - f.left : r.cx;
+    const hitY = hasPoint ? event.clientY - f.top : r.cy;
+
+    const note = makeNote(2, "target");
+    const place = () => {
+      const box = relative(reticle, figure);
+      const left = Math.max(4, Math.min(figure.clientWidth - note.offsetWidth - 4, box.cx - note.offsetWidth / 2));
+      note.style.left = px(left);
+      note.style.top = px(Math.max(4, box.y - note.offsetHeight - 6));
+    };
+
+    if (!motion) {
+      figure.append(note);
+      place();
+      placers.push(place);
+      return;
     }
-    window.dispatchEvent(new CustomEvent("hunt:step", { detail: step }));
+
+    const shot = document.createElement("div");
+    shot.className = "hunt-shot";
+    shot.style.left = px(hitX);
+    shot.style.top = px(hitY);
+    shot.innerHTML = '<i class="hunt-shot__flash"></i><i class="hunt-shot__ring"></i><i class="hunt-shot__mark"></i>';
+    figure.append(shot);
+    setTimeout(() => shot.remove(), 1000);
+
+    reticle.animate([{ scale: "1" }, { scale: "0.8" }, { scale: "1.06" }, { scale: "1" }], {
+      duration: 420,
+      easing: "ease-out",
+    });
+    figure.parentElement?.animate(
+      [
+        { translate: "0 0" },
+        { translate: "-7px 3px" },
+        { translate: "6px -4px" },
+        { translate: "-3px 2px" },
+        { translate: "0 0" },
+      ],
+      { duration: 320, easing: "ease-out" },
+    );
+
+    await wait(420);
+    figure.append(note);
+    place();
+    placers.push(place);
+    const dx = hitX - (parseFloat(note.style.left) + note.offsetWidth / 2);
+    const dy = hitY - (parseFloat(note.style.top) + note.offsetHeight / 2);
+    await play(
+      note,
+      [
+        { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(0.3)`, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+        { opacity: 1, transform: `translate(${dx}px, ${dy - 14}px) scale(1)`, offset: 0.28 },
+        { opacity: 1, transform: `translate(${dx}px, ${dy - 14}px) scale(1)`, offset: 0.42, easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
+        { opacity: 1, transform: "none" },
+      ],
+      { duration: 1400 },
+    );
   };
 
-  const hide = () => {
-    if (!toast) return;
-    toast.classList.remove("is-open");
-    window.clearTimeout(hideTimer);
-    hideTimer = window.setTimeout(() => (toast.hidden = true), 400);
+  /* Clue 3: an alarm clock pops up, falls, shatters, and the pieces become the next card */
+  const breakClock = async (tag: HTMLElement) => {
+    const media = tag.parentElement;
+    if (!media) return;
+    const note = makeNote(3, "clock");
+    media.append(note);
+    if (!motion) return;
+
+    note.style.opacity = "0";
+    const t = relative(tag, media);
+    const n = relative(note, media);
+    const baseX = t.cx - CLOCK_W / 2;
+    const baseY = t.cy - CLOCK_H / 2;
+    const floor = n.cy - t.cy;
+    const peak = Math.min(-150, floor - 110);
+
+    const clock = document.createElement("div");
+    clock.className = "hunt-clock is-ringing";
+    clock.innerHTML = CLOCK_SVG;
+    clock.style.left = px(baseX);
+    clock.style.top = px(baseY);
+    media.append(clock);
+
+    await play(
+      clock,
+      [
+        { opacity: 0, transform: "translateY(0) scale(0.2)" },
+        { opacity: 1, transform: `translateY(${peak}px) scale(1)` },
+      ],
+      { duration: 560, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    );
+    await play(
+      clock,
+      [0, -14, 12, -10, 8, -4, 0].map((deg) => ({ transform: `translateY(${peak}px) rotate(${deg}deg)` })),
+      { duration: 560 },
+    );
+    await play(
+      clock,
+      [
+        { transform: `translateY(${peak}px) rotate(0deg)` },
+        { transform: `translateY(${floor}px) rotate(24deg)` },
+      ],
+      { duration: 420, easing: "cubic-bezier(0.55, 0, 1, 0.45)" },
+    );
+    clock.remove();
+
+    const angles = [0, 50, 100, 150, 200, 250, 305, 360];
+    const edge = (deg: number) => {
+      const rad = (deg * Math.PI) / 180;
+      return `${50 + 90 * Math.cos(rad)}% ${55.5 + 90 * Math.sin(rad)}%`;
+    };
+    const shards = angles.slice(0, -1).map((start, i) => {
+      const end = angles[i + 1];
+      const mid = (((start + end) / 2) * Math.PI) / 180;
+      const shard = document.createElement("div");
+      shard.className = "hunt-clock hunt-clock--shard";
+      shard.innerHTML = CLOCK_SVG;
+      shard.style.left = px(baseX);
+      shard.style.top = px(baseY + floor);
+      shard.style.clipPath = `polygon(50% 55.5%, ${edge(start)}, ${edge((start + end) / 2)}, ${edge(end)})`;
+      media.append(shard);
+      const dist = 55 + Math.random() * 50;
+      return {
+        shard,
+        i,
+        bx: Math.cos(mid) * dist,
+        by: Math.sin(mid) * dist + 26,
+        spin: 24 + (Math.random() - 0.5) * 300,
+      };
+    });
+
+    await Promise.all(
+      shards.map(({ shard, bx, by, spin }) =>
+        play(
+          shard,
+          [
+            { transform: "translate(0, 0) rotate(24deg)" },
+            { transform: `translate(${bx}px, ${by}px) rotate(${spin}deg)` },
+          ],
+          { duration: 620, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)" },
+        ),
+      ),
+    );
+
+    play(
+      note,
+      [
+        { opacity: 0, filter: "blur(8px)", transform: "scale(0.94)" },
+        { opacity: 1, filter: "blur(0px)", transform: "none" },
+      ],
+      { duration: 520, delay: 240, easing: "ease-out" },
+    );
+    await Promise.all(
+      shards.map(({ shard, i, bx, by, spin }) => {
+        const tx = n.x + ((i + 0.5) / shards.length) * n.w - (baseX + CLOCK_W / 2);
+        const ty = n.cy - (baseY + floor + CLOCK_H / 2);
+        return play(
+          shard,
+          [
+            { opacity: 1, transform: `translate(${bx}px, ${by}px) rotate(${spin}deg) scale(1)` },
+            { opacity: 0, transform: `translate(${tx}px, ${ty}px) rotate(0deg) scale(0.15)` },
+          ],
+          { duration: 560, delay: i * 35, easing: "cubic-bezier(0.55, 0, 0.45, 1)" },
+        );
+      }),
+    );
+    shards.forEach(({ shard }) => shard.remove());
   };
 
-  const show = (clueStep: number) => {
-    const clue = clues[clueStep];
-    if (!toast || !label || !text || !clue) return;
-    window.clearTimeout(hideTimer);
-    [label.textContent, text.textContent] = clue;
-    toast.hidden = false;
-    toast.classList.remove("is-open");
-    void toast.offsetWidth;
-    toast.classList.add("is-open");
-    hideTimer = window.setTimeout(hide, 9000);
+  /* Clue 4: the star drops out of the ribbon and cracks open like a fortune cookie */
+  const crackStar = async (star: HTMLElement) => {
+    const ribbon = star.closest<HTMLElement>("[data-ribbon]");
+    if (!ribbon) return;
+    const s = relative(star, ribbon);
+    star.classList.add("hunt-star-taken");
+    takenStar = star;
+
+    const [label, text] = clues[4];
+    const fortune = document.createElement("div");
+    fortune.className = "hunt-fortune";
+    fortune.innerHTML = `<div class="hunt-fortune__slip"><span class="hunt-note__label"></span><span class="hunt-fortune__text"></span></div>
+      <span class="hunt-fortune__half hunt-fortune__half--l">${STAR_SVG}</span>
+      <span class="hunt-fortune__half hunt-fortune__half--r">${STAR_SVG}</span>`;
+    fortune.querySelector(".hunt-note__label")!.textContent = label;
+    fortune.querySelector(".hunt-fortune__text")!.textContent = text;
+    pieces.push(fortune);
+    announce(4);
+    ribbon.append(fortune);
+
+    const slip = fortune.querySelector<HTMLElement>(".hunt-fortune__slip")!;
+    const [left, right] = fortune.querySelectorAll<HTMLElement>(".hunt-fortune__half");
+    const place = () => {
+      const half = fortune.offsetWidth / 2 + 56;
+      fortune.style.left = px(Math.max(half, Math.min(ribbon.clientWidth - half, s.cx)));
+    };
+    place();
+    placers.push(place);
+
+    const spread = slip.offsetWidth / 2 + 2;
+    const openLeft = `translate(${-spread}px, 4px) rotate(-28deg)`;
+    const openRight = `translate(${spread}px, 4px) rotate(28deg)`;
+
+    if (!motion) {
+      left.style.transform = openLeft;
+      right.style.transform = openRight;
+      return;
+    }
+
+    slip.style.opacity = "0";
+    const f = relative(left, ribbon);
+    const dx = s.cx - f.cx;
+    const dy = s.cy - f.cy;
+    const fall: Keyframe[] = [
+      { transform: `translate(${dx}px, ${dy}px) scale(0.5) rotate(0deg)`, easing: "cubic-bezier(0.2, 0.6, 0.4, 1)" },
+      { transform: `translate(${dx * 0.7}px, ${dy - 34}px) scale(0.75) rotate(120deg)`, offset: 0.3, easing: "cubic-bezier(0.5, 0, 0.9, 0.5)" },
+      { transform: "translate(0px, 0px) scale(1) rotate(360deg)", offset: 0.8, easing: "ease-out" },
+      { transform: "translate(0px, -9px) scale(1.06, 0.94) rotate(360deg)", offset: 0.9, easing: "ease-in" },
+      { transform: "translate(0px, 0px) scale(1) rotate(360deg)" },
+    ];
+    await Promise.all([left, right].map((half) => play(half, fall, { duration: 1000 })));
+
+    const shake = [0, 9, -8, 6, -3, 0].map((deg) => ({ transform: `rotate(${deg}deg)` }));
+    await Promise.all([left, right].map((half) => play(half, shake, { duration: 380 })));
+
+    for (let i = 0; i < 7; i++) {
+      const crumb = document.createElement("i");
+      crumb.className = "hunt-crumb";
+      fortune.append(crumb);
+      const angle = -Math.PI / 2 + (i - 3) * 0.45;
+      const dist = 26 + Math.random() * 22;
+      play(
+        crumb,
+        [
+          { opacity: 1, transform: "translate(0, 0) scale(1)" },
+          { opacity: 0, transform: `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist + 30}px) scale(0.4)` },
+        ],
+        { duration: 700, easing: "cubic-bezier(0.2, 0.8, 0.4, 1)" },
+      ).then(() => crumb.remove());
+    }
+
+    const open = { duration: 760, easing: "cubic-bezier(0.22, 1, 0.36, 1)" };
+    await Promise.all([
+      play(left, [{ transform: "none" }, { transform: openLeft }], open),
+      play(right, [{ transform: "none" }, { transform: openRight }], open),
+      play(
+        slip,
+        [
+          { opacity: 0, transform: "scaleX(0.05)" },
+          { opacity: 1, transform: "scaleX(1)" },
+        ],
+        { ...open, delay: 60 },
+      ),
+    ]);
   };
 
-  document.querySelector("[data-clue-close]")?.addEventListener("click", hide);
+  /* Opening the Classified card clears every clue so the hunt can be played again */
+  const finish = async () => {
+    try {
+      localStorage.setItem(FOUND_KEY, "1");
+    } catch {
+      /* storage can be blocked; the hunt still resets for this visit */
+    }
+    const leaving = pieces;
+    const star = takenStar;
+    pieces = [];
+    placers = [];
+    statusNote = null;
+    takenStar = null;
+    setStep(0);
+    if (live) live.textContent = "Hunt complete. Click the status line again to play it over.";
+
+    await wait(motion ? 900 : 0);
+    await Promise.all(
+      leaving.map((el, i) =>
+        play(
+          el,
+          [
+            { opacity: 1, filter: "blur(0px)" },
+            { opacity: 0, filter: "blur(6px)" },
+          ],
+          { duration: motion ? 700 : 1, delay: motion ? i * 140 : 0, easing: "ease-in" },
+        ).then(() => el.remove()),
+      ),
+    );
+    star?.classList.remove("hunt-star-taken");
+  };
 
   document.addEventListener("click", (event) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-hunt]");
@@ -66,95 +407,381 @@
 
     switch (target.dataset.hunt) {
       case "status":
-        if (step === 0) setStep(1);
-        show(step);
+        if (step === 0) {
+          setStep(1);
+          popFromStatus(target);
+        } else if (statusNote) {
+          nudge(statusNote);
+        }
         break;
       case "reticle":
         if (step === 1) {
           setStep(2);
-          show(2);
+          shoot(target, event);
+        }
+        break;
+      case "clock":
+        if (step === 2) {
+          setStep(3);
+          breakClock(target);
         }
         break;
       case "star":
-        if (step === 2) {
-          setStep(3);
-          show(3);
+        if (step === 3) {
+          setStep(4);
+          crackStar(target);
         }
         break;
     }
   });
 
   window.addEventListener("hunt:found", () => {
-    if (step < 4) setStep(4);
-    hide();
+    if (step === 4) finish();
   });
 
-  setStep(step);
+  window.addEventListener("resize", () => placers.forEach((place) => place()));
+
+  document.querySelector("[data-hunt-hint]")?.addEventListener("click", () => {
+    const status = document.querySelector<HTMLElement>('[data-hunt="status"]');
+    if (!status) return;
+    status.scrollIntoView({ behavior: motion ? "smooth" : "auto", block: "center" });
+    setTimeout(
+      () =>
+        status.animate(
+          [
+            { scale: "1", color: "#4a4e45" },
+            { scale: "1.12", color: "#3d6f5f" },
+            { scale: "1", color: "#4a4e45" },
+          ],
+          { duration: 650, iterations: 2, easing: "ease-in-out" },
+        ),
+      motion ? 900 : 0,
+    );
+  });
+
+  setStep(0);
 </script>
 
-<style>
-  .clue {
-    position: fixed;
-    left: 50%;
-    bottom: 1.5rem;
-    z-index: 90;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.3rem 1rem;
-    width: min(30rem, calc(100% - 2rem));
-    padding: 1rem 1.1rem 1.1rem 1.3rem;
-    border-radius: 1rem;
+<style is:global>
+  .hunt-live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hunt-note {
+    position: absolute;
+    z-index: 8;
+    width: max-content;
+    max-width: min(16.5rem, calc(100vw - 2.5rem));
+    padding: 0.65rem 0.9rem 0.75rem;
+    border-radius: 0.75rem;
     background: var(--ink);
     color: #f4f1ea;
-    box-shadow: 0 24px 60px -20px rgba(26, 28, 24, 0.55);
-    transform: translate(-50%, calc(100% + 2rem));
-    opacity: 0;
-    transition:
-      transform 0.6s var(--ease-spring),
-      opacity 0.3s ease;
+    box-shadow: 0 18px 40px -18px rgba(26, 28, 24, 0.65);
+    text-align: left;
+    pointer-events: none;
   }
 
-  .clue.is-open {
-    transform: translate(-50%, 0);
-    opacity: 1;
+  .hunt-note::before {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--ink);
+    transform: rotate(45deg);
   }
 
-  .clue__label {
-    margin: 0;
+  .hunt-note__label {
+    display: block;
+    margin-bottom: 0.2rem;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.58rem;
+    font-weight: 500;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #9fd1bc;
   }
 
-  .clue__text {
-    grid-column: 1;
-    margin: 0;
+  .hunt-note__text {
+    display: block;
     font-family: var(--font-display);
-    font-size: 1.35rem;
-    line-height: 1.25;
+    font-size: 1.08rem;
+    line-height: 1.2;
   }
 
-  .clue__close {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: start;
-    width: 2rem;
-    height: 2rem;
-    margin: 0;
-    padding: 0;
-    border: 1px solid rgba(244, 241, 234, 0.2);
+  .hunt-note--status {
+    left: -0.2rem;
+    top: calc(100% + 0.8rem);
+    max-width: min(22rem, calc(100vw - 2.5rem));
+    transform-origin: 0.7rem -0.6rem;
+  }
+
+  .hunt-note--status::before {
+    left: 0.55rem;
+    top: -4px;
+  }
+
+  @media (max-width: 959px) {
+    .hunt-note--status {
+      position: relative;
+      left: auto;
+      top: auto;
+      margin-top: 1rem;
+    }
+  }
+
+  .hunt-note--target {
+    z-index: 4;
+    max-width: min(22rem, 96%);
+    text-align: center;
+    transform-origin: 50% 100%;
+  }
+
+  .hunt-note--target::before {
+    left: calc(50% - 5px);
+    bottom: -4px;
+  }
+
+  .hunt-note--clock {
+    left: 1.25rem;
+    bottom: 3.9rem;
+    z-index: 4;
+  }
+
+  .hunt-note--clock::before {
+    left: 1.4rem;
+    bottom: -4px;
+  }
+
+  /* Shot on the face target */
+  .hunt-shot {
+    position: absolute;
+    z-index: 5;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .hunt-shot i {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .hunt-shot__flash {
+    width: 22px;
+    height: 22px;
+    margin: -11px;
     border-radius: 50%;
-    background: none;
-    color: inherit;
-    font-size: 1.1rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: background 0.2s ease;
+    background: radial-gradient(circle, #fff 0%, rgba(255, 247, 214, 0.95) 35%, rgba(47, 156, 114, 0) 70%);
+    animation: hunt-flash 0.45s ease-out forwards;
   }
 
-  .clue__close:hover {
-    background: rgba(244, 241, 234, 0.12);
+  .hunt-shot__ring {
+    width: 32px;
+    height: 32px;
+    margin: -16px;
+    border: 2px solid var(--signal);
+    border-radius: 50%;
+    animation: hunt-ring 0.65s var(--ease) forwards;
+  }
+
+  .hunt-shot__mark {
+    width: 30px;
+    height: 30px;
+    margin: -15px;
+    rotate: 45deg;
+    mask-image: radial-gradient(circle, transparent 5px, #000 5.5px);
+    animation: hunt-mark 0.8s ease-out forwards;
+  }
+
+  .hunt-shot__mark::before,
+  .hunt-shot__mark::after {
+    content: "";
+    position: absolute;
+    background: #f8f5ee;
+    box-shadow: 0 0 0 1px rgba(26, 28, 24, 0.55);
+  }
+
+  .hunt-shot__mark::before {
+    left: calc(50% - 1px);
+    top: 0;
+    width: 2px;
+    height: 100%;
+  }
+
+  .hunt-shot__mark::after {
+    top: calc(50% - 1px);
+    left: 0;
+    width: 100%;
+    height: 2px;
+  }
+
+  /* Alarm clock and its shards */
+  .hunt-clock {
+    position: absolute;
+    z-index: 5;
+    width: 72px;
+    height: 81px;
+    pointer-events: none;
+    filter: drop-shadow(0 10px 14px rgba(26, 28, 24, 0.25));
+  }
+
+  .hunt-clock svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hunt-clock line {
+    transform-box: view-box;
+    transform-origin: 32px 40px;
+  }
+
+  .hunt-clock.is-ringing .hunt-clock__minute {
+    animation: hunt-spin 0.5s linear infinite;
+  }
+
+  .hunt-clock.is-ringing .hunt-clock__hour {
+    animation: hunt-spin 3s linear infinite;
+  }
+
+  .hunt-clock--shard {
+    filter: none;
+  }
+
+  /* Fortune cookie star */
+  .hunt-star-taken {
+    visibility: hidden;
+  }
+
+  .hunt-fortune {
+    position: absolute;
+    top: calc(100% + 1.4rem);
+    z-index: 4;
+    translate: -50% 0;
+    rotate: -1.5deg;
+    pointer-events: none;
+  }
+
+  @media (max-width: 700px) {
+    .ribbon {
+      transition: margin-bottom 0.6s var(--ease);
+    }
+
+    .ribbon:has(.hunt-fortune) {
+      margin-bottom: 6rem;
+    }
+  }
+
+  .hunt-fortune__slip {
+    width: min(19rem, calc(100vw - 8.5rem));
+    padding: 0.6rem 1.1rem 0.7rem;
+    border-radius: 3px;
+    background: #fbf8f0;
+    box-shadow:
+      0 0 0 1px rgba(26, 28, 24, 0.08),
+      0 12px 26px -14px rgba(26, 28, 24, 0.45);
+    text-align: center;
+  }
+
+  .hunt-fortune__slip .hunt-note__label {
+    color: var(--accent);
+  }
+
+  .hunt-fortune__text {
+    display: block;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.08rem;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .hunt-fortune__half {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3.1rem;
+    height: 3.1rem;
+    margin: -1.55rem 0 0 -1.55rem;
+    color: var(--accent);
+  }
+
+  .hunt-fortune__half svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  .hunt-fortune__half--l {
+    clip-path: polygon(0 0, 52% 0, 46% 22%, 55% 40%, 45% 58%, 54% 78%, 48% 100%, 0 100%);
+  }
+
+  .hunt-fortune__half--r {
+    clip-path: polygon(52% 0, 100% 0, 100% 100%, 48% 100%, 54% 78%, 45% 58%, 55% 40%, 46% 22%);
+  }
+
+  .hunt-crumb {
+    position: absolute;
+    left: calc(50% - 2px);
+    top: calc(50% - 2px);
+    width: 4px;
+    height: 4px;
+    border-radius: 1px;
+    background: var(--accent);
+  }
+
+  @keyframes hunt-flash {
+    from {
+      opacity: 1;
+      transform: scale(0.4);
+    }
+    to {
+      opacity: 0;
+      transform: scale(5);
+    }
+  }
+
+  @keyframes hunt-ring {
+    from {
+      opacity: 1;
+      transform: scale(0.3);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.6);
+    }
+  }
+
+  @keyframes hunt-mark {
+    0% {
+      opacity: 0;
+      transform: scale(1.7);
+    }
+    15% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes hunt-spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>

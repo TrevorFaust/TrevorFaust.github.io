@@ -190,6 +190,10 @@ const visibleProjects = projects.filter((project) => !("hidden" in project && pr
     background:
       radial-gradient(420px circle at var(--x) var(--y), rgba(var(--glow-rgb), 0.85), transparent 70%),
       linear-gradient(90deg, rgba(var(--accent-rgb), 0.04), transparent);
+    mask-image:
+      linear-gradient(to right, transparent, #000 9%, #000 91%, transparent),
+      linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+    mask-composite: intersect;
     opacity: 0;
     transition: opacity 0.4s ease;
   }

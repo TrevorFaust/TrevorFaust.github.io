@@ -4,25 +4,32 @@ import { about } from "../data/site";
 const items = [...about.skills, ...about.skills];
 ---
 
-<div class="marquee" aria-label="Tools I work with">
-  <ul class="marquee__track">
-    {
-      items.map((skill, index) => (
-        <li
-          class={(index % about.skills.length) % 2 === 0 ? "is-upright" : undefined}
-          aria-hidden={index >= about.skills.length ? "true" : undefined}
-        >
-          <button class="marquee__star" type="button" data-hunt="star" tabindex="-1" aria-hidden="true">
-            ✦
-          </button>
-          {skill}
-        </li>
-      ))
-    }
-  </ul>
+<div class="ribbon" data-ribbon>
+  <div class="marquee" aria-label="Tools I work with">
+    <ul class="marquee__track">
+      {
+        items.map((skill, index) => (
+          <li
+            class={(index % about.skills.length) % 2 === 0 ? "is-upright" : undefined}
+            aria-hidden={index >= about.skills.length ? "true" : undefined}
+          >
+            <button class="marquee__star" type="button" data-hunt="star" tabindex="-1" aria-hidden="true">
+              ✦
+            </button>
+            {skill}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </div>
 
 <style>
+  .ribbon {
+    position: relative;
+    z-index: 3;
+  }
+
   .marquee {
     position: relative;
     z-index: 1;
@@ -81,13 +88,13 @@ const items = [...about.skills, ...about.skills];
       color 0.3s ease;
   }
 
-  :global(html[data-hunt="2"]) .marquee__star {
+  :global(html[data-hunt="3"]) .marquee__star {
     cursor: pointer;
     background: rgba(var(--accent-rgb), 0.14);
     animation: star-hint 1.6s var(--ease-in-out) infinite;
   }
 
-  :global(html[data-hunt="2"]) .marquee__star:hover {
+  :global(html[data-hunt="3"]) .marquee__star:hover {
     background: var(--accent);
     color: #f4f1ea;
     animation: none;

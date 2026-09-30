@@ -12,7 +12,14 @@ The site uses a warm beige background with deep green accents. In the hero, the 
 
 ## Scavenger hunt
 
-Clicking "Open to data analytics roles" in the hero starts a three-clue hunt. The clues lead to the lock-on square around Trevor's face, then a star in the skills ticker, then a hidden "Classified" card that slips into the contact cabinet. The clue logic lives in `src/components/Hunt.astro`. Progress is saved in `localStorage` under `tf-hunt`. Run `localStorage.removeItem('tf-hunt')` in the console to start over.
+A note in the footer points visitors to "Open to data analytics roles" in the hero, which starts a four-clue hunt. Each clue appears where it was triggered, and the steps only work in order:
+
+1. The status line pops out a card beneath it pointing at the target around Trevor's face.
+2. Clicking the face fires a shot with a hit marker, and the next card rises from the hit to above his head.
+3. "Off the clock" on the About photo launches an alarm clock that falls, shatters, and reassembles into the next card.
+4. A star in the skills ticker drops out and cracks open like a fortune cookie, pointing to the "Classified" card now in the contact cabinet.
+
+Opening the Classified card clears every clue so the hunt can be played again. Once found, the card stays in the cabinet on later visits (`localStorage` key `tf-hunt-found`). Run `localStorage.removeItem('tf-hunt-found')` to hide it again. The hunt logic and animations live in `src/components/Hunt.astro`.
 
 ## Local development
 

@@ -374,6 +374,10 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     color: var(--accent);
   }
 
+  :global(html:is([data-hunt="2"], [data-hunt="3"], [data-hunt="4"])) .hero__reticle-label {
+    opacity: 0;
+  }
+
   .hero__reticle i {
     position: absolute;
     width: 14px;
@@ -420,6 +424,7 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     font-size: 0.62rem;
     letter-spacing: 0.18em;
     color: var(--ink-soft);
+    transition: opacity 0.3s ease;
   }
 
   .hero__hud {
@@ -484,7 +489,7 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
   .hero__copy {
     position: absolute;
     left: var(--edge);
-    bottom: max(2.5rem, 7svh);
+    bottom: max(5.5rem, 12svh);
     z-index: 6;
     width: min(29rem, calc(var(--cx) - var(--ph) * 0.19 - var(--edge) - 2rem));
   }
