@@ -1,9 +1,9 @@
 export const site = {
   name: "Trevor Faust",
   initials: "TF",
-  title: "Trevor Faust | Data Analytics & Product Building",
+  title: "Trevor Faust | Data, Software & Engineering",
   description:
-    "Seattle data professional who builds sports tools and side projects. I turn messy data into things people can act on.",
+    "Seattle engineer working across data analytics, software, and process improvement, who builds sports tools and side projects. I turn messy data into things people can act on.",
   location: "Seattle, WA",
   coordinates: "47.6062° N / 122.3321° W",
   interests: ["Sports", "Technology", "Sustainability", "Energy"],
@@ -55,7 +55,7 @@ export const projects = [
     title: "Lease Locator",
     blurb: "Finds apartments and houses to lease based on the preferences you set.",
     detail:
-      "It catches hidden and niche listings that slip through the cracks of the usual rental sites.",
+      "It catches hidden and niche listings that slip through the cracks of the usual rental sites. It only searches the cities set up for scraping, which right now are Chicago and Seattle, my original picks.",
     href: "https://leaselocator.vercel.app/",
     repo: "https://github.com/TrevorFaust/Apartment_Search",
     tags: ["Playwright", "Scoring", "Resend", "Supabase"],
@@ -80,7 +80,7 @@ export const about = {
   body: [
     "At Kennametal I work across process engineering, product analytics, and sales enablement. I cut $2M from production with Excel/VBA scheduling, structured 500+ product datasets, and I use Power BI dashboards that help teams track product and regional performance. SQL, Power BI, and Excel are the daily stack. Python is for the problems that outgrow a spreadsheet.",
     "Off the clock I build products from UI through backend because I want to own the full thing. The process is usually scrape, structure, and ship something I would use myself. DraftDNA, Hustle Hunter, and Lease Locator all started that way. I love taking a messy source, modeling it, and putting an interface on it so people actively use it.",
-    "I'm looking for my next data analytics role in sports, technology, or energy and sustainability.",
+    "I'm open to roles in data analytics, software development, engineering, and consulting, especially in sports, technology, or energy and sustainability.",
   ],
   skills: [
     "SQL",

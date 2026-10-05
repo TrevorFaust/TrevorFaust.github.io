@@ -4,7 +4,7 @@ Personal site for projects, about, and contact. Live at https://trevorfaust.gith
 
 ## What's live
 
-The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
+The site positions Trevor for data analytics, software development, engineering, and consulting roles. The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
 
 ## Look and feel
 
@@ -12,7 +12,7 @@ The site uses a warm beige background with deep green accents. In the hero, the 
 
 ## Scavenger hunt
 
-A note in the footer points visitors to "Open to data analytics roles" in the hero, which starts a four-clue hunt. Each clue appears where it was triggered, and the steps only work in order:
+A note in the footer points visitors to the green "Open to data, software, engineering & consulting roles" status in the hero, which starts a four-clue hunt. Each clue appears where it was triggered, and the steps only work in order:
 
 1. A firework launches from the green status dot, bursts, and its sparks settle into the first clue written beneath it, pointing at the target around Trevor's face.
 2. A shot only counts on Trevor's head or neck, not anywhere in the box. A hit leaves a blood-red dot, and the next clue rises from it to sit above his head in a dripping horror font (Nosifer).
