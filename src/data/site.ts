@@ -55,7 +55,7 @@ export const projects = [
     title: "Lease Locator",
     blurb: "Finds apartments and houses to lease based on the preferences you set.",
     detail:
-      "It catches hidden and niche listings that slip through the cracks of the usual rental sites. It only searches the cities set up for scraping, which right now are Chicago and Seattle, my original picks.",
+      "It catches hidden and niche listings that slip through the cracks of the usual rental sites. It only searches the cities set up for scraping, which right now are Chicago and Seattle, two cities of recent interest.",
     href: "https://leaselocator.vercel.app/",
     repo: "https://github.com/TrevorFaust/Apartment_Search",
     tags: ["Playwright", "Scoring", "Resend", "Supabase"],
