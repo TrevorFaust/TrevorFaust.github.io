@@ -4,7 +4,7 @@ Personal site for projects, about, and contact. Live at https://trevorfaust.gith
 
 ## What's live
 
-The site positions Trevor for data analytics, software development, engineering, and consulting roles. The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. An Analytics section sits under that list and links to the Streamlit app at https://trevorfaust-analytics.streamlit.app/. The app index covers baseball (whose contact was better), basketball (back-to-backs and home court), and football (penalties since 1999). Each row on the site opens that study. The Open analytics button opens the index. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
+The site positions Trevor for data analytics, software development, engineering, and consulting roles. The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. An Analytics section sits under that list and links to the Streamlit app at https://trevorfaust-analytics.streamlit.app/. Featured rows are the NFL penalty problem, expected contact in baseball, and basketball rest and home court. A More row opens the app home, where the full set lives. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
 
 ## Look and feel
 
