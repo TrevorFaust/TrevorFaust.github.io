@@ -22,20 +22,30 @@ export const analyticsStudies = [
   {
     sport: "Football",
     title: "Does the NFL have a penalty problem?",
-    dek: "Flags and penalty yards for every regular-season game since 1999.",
+    dek: "Following the NFL flags and trends since 1999.",
     path: "nfl-penalties",
+    icon: "football",
   },
   {
     sport: "Baseball",
     title: "Whose contact was better?",
-    dek: "Exit velocity and launch angle, set against the result and against Savant.",
+    dek: "A look at exit velocity and launch angle, to sort a real at-bat from a swing that was never going anywhere.",
     path: "expected-contact",
+    icon: "baseball",
   },
   {
     sport: "Basketball",
     title: "Do back-to-backs and home court change efficiency?",
-    dek: "True shooting by nights off, building, position, and minutes, since 2021-22.",
+    dek: "A look at how fatigue and back-to-back games play into performance.",
     path: "nba-logs",
+    icon: "basketball",
+  },
+  {
+    sport: "More",
+    title: "The full set",
+    dek: "Take a peek at the rest of the catalog, and the other topics I have dug into.",
+    path: "",
+    icon: "catalog",
   },
 ] as const;
 
