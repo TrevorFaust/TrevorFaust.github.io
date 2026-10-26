@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <g transform="rotate(-28 32 32)">
-    <ellipse cx="32" cy="32" rx="23" ry="13.5" stroke="#1a1c18" stroke-width="2.25"/>
-    <path d="M20 32h24" stroke="#3d6f5f" stroke-width="1.7" stroke-linecap="round"/>
-    <path d="M26 28.2v7.6M32 27v10M38 28.2v7.6" stroke="#3d6f5f" stroke-width="1.7" stroke-linecap="round"/>
-  </g>
-</svg>
