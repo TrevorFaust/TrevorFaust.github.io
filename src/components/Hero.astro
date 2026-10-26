@@ -27,7 +27,6 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
         loading="eager"
         draggable="false"
       />
-      <span class="hero__scan"></span>
     </div>
 
     <h1 id="hero-title" class="hero__name hero__type layer-name">
@@ -245,18 +244,6 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     filter: saturate(0.9) contrast(1.02);
     clip-path: inset(100% 0 0 0);
     animation: wipe-up 1.6s var(--ease-in-out) 0.15s forwards;
-  }
-
-  .hero__scan {
-    position: absolute;
-    left: -20%;
-    right: -20%;
-    top: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(var(--glow-rgb), 0.95), transparent);
-    box-shadow: 0 0 16px 2px rgba(var(--glow-rgb), 0.6);
-    opacity: 0;
-    animation: scan 9s var(--ease-in-out) 1.2s infinite;
   }
 
   .hero__photo--figure {
@@ -708,27 +695,6 @@ const cutoutMask = await getImage({ src: heroCutout, format: "webp", width: 511 
     to {
       opacity: 1;
       transform: scale(1);
-    }
-  }
-
-  @keyframes scan {
-    0% {
-      top: 0;
-      opacity: 0;
-    }
-    4% {
-      opacity: 1;
-    }
-    30% {
-      opacity: 0.8;
-    }
-    36% {
-      top: 100%;
-      opacity: 0;
-    }
-    100% {
-      top: 100%;
-      opacity: 0;
     }
   }
 

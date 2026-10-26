@@ -22,7 +22,7 @@ export const analyticsStudies = [
   {
     sport: "Football",
     title: "Does the NFL have a penalty problem?",
-    dek: "Following the NFL flags and trends since 1999.",
+    dek: "A deep dive into trends, rule changes, and flags across the league since 1999.",
     path: "nfl-penalties",
     icon: "football",
   },
@@ -43,7 +43,7 @@ export const analyticsStudies = [
   {
     sport: "More",
     title: "The full set",
-    dek: "Take a peek at the rest of the catalog, and the other topics I have dug into.",
+    dek: "Take a peek at the rest of the catalog, and the other topics I dug into.",
     path: "",
     icon: "catalog",
   },
