@@ -4,11 +4,11 @@ Personal site for projects, about, and contact. Live at https://trevorfaust.gith
 
 ## What's live
 
-The site positions Trevor for data analytics, software development, engineering, and consulting roles. The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
+The site positions Trevor for data analytics, software development, engineering, and consulting roles. The project list shows DraftDNA, ScoutDNA Newsletter, Hustle Hunter, and Lease Locator. An Analytics section sits under that list and links to the Streamlit app at https://trevorfaust-analytics.streamlit.app/. The app index covers baseball (whose contact was better), basketball (back-to-backs and home court), and football (penalties since 1999). Each row on the site opens that study. The Open analytics button opens the index. Copy, links, and about text live in `src/data/site.ts`. Set `hidden: true` on a project to keep it in the data file without showing it on the site.
 
 ## Look and feel
 
-The site uses a warm beige background with deep green accents. In the hero, the name sits between the beach photo and a cutout of Trevor (`src/assets/portrait-hero-cutout.png`). The letters pass behind him, and their outline is drawn only where they cross his body. The layers shift slightly with the cursor and on scroll, and a soft highlight follows the mouse. A skills ticker that never stops scrolling leads into Projects. Contact is a small filing cabinet: click a tab to pull the Email, LinkedIn, Substack, or GitHub card to the front.
+The site uses a warm beige background with deep green accents. In the hero, the name sits between the beach photo and a cutout of Trevor (`src/assets/portrait-hero-cutout.png`). The letters pass behind him, and their outline is drawn only where they cross his body. The layers shift slightly with the cursor and on scroll, and a soft highlight follows the mouse. A skills ticker that never stops scrolling leads into Projects, then Analytics. Contact is a small filing cabinet: click a tab to pull the Email, LinkedIn, Substack, or GitHub card to the front.
 
 ## Scavenger hunt
 

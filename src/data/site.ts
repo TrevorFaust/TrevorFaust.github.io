@@ -14,8 +14,30 @@ export const site = {
     linkedin: "https://www.linkedin.com/in/trevor-faust-000t",
     substack: "https://substack.com/@trevorfaust",
     github: "https://github.com/TrevorFaust",
+    analytics: "https://trevorfaust-analytics.streamlit.app/",
   },
 };
+
+export const analyticsStudies = [
+  {
+    sport: "Baseball",
+    title: "Whose contact was better?",
+    dek: "Exit velocity and launch angle, set against the result and against Savant.",
+    path: "expected-contact",
+  },
+  {
+    sport: "Basketball",
+    title: "Do back-to-backs and home court change efficiency?",
+    dek: "True shooting by nights off, building, position, and minutes, since 2021-22.",
+    path: "nba-logs",
+  },
+  {
+    sport: "Football",
+    title: "Does the NFL have a penalty problem?",
+    dek: "Flags and penalty yards for every regular-season game since 1999.",
+    path: "nfl-penalties",
+  },
+] as const;
 
 export const projects = [
   {
