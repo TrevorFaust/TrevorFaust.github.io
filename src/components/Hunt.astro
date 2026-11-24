@@ -705,6 +705,9 @@
     star?.classList.remove("hunt-star-taken");
   };
 
+  const hint = document.querySelector<HTMLElement>("[data-hunt-hint]");
+  const quietHint = () => hint?.classList.add("is-quiet");
+
   document.addEventListener("click", (event) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-hunt]");
     if (!target) return;
@@ -712,6 +715,7 @@
     switch (target.dataset.hunt) {
       case "status":
         if (step === 0) {
+          quietHint();
           setStep(1);
           popFromStatus(target);
         } else if (statusNote) {
@@ -748,7 +752,8 @@
 
   window.addEventListener("resize", () => placers.forEach((place) => place()));
 
-  document.querySelector("[data-hunt-hint]")?.addEventListener("click", () => {
+  hint?.addEventListener("click", () => {
+    quietHint();
     const status = document.querySelector<HTMLElement>('[data-hunt="status"]');
     if (!status) return;
     status.scrollIntoView({ behavior: motion ? "smooth" : "auto", block: "center" });
