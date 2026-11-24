@@ -44,6 +44,7 @@ const cards = [
   },
 ];
 
+const secretMailto = `mailto:${site.email}?subject=${encodeURIComponent("I found the hidden card")}`;
 ---
 
 <section class="section contact" id="contact" aria-labelledby="contact-title">
@@ -112,10 +113,12 @@ const cards = [
             <p class="cabinet__value cabinet__value--secret">PLEASE hire me.</p>
             <p class="cabinet__note">You followed every clue to get here. I'm that thorough with data and design, too.</p>
             <div class="cabinet__actions">
-              <button class="btn btn--primary" type="button" data-copy={site.email}>
+              <a class="btn btn--primary" href={secretMailto}>
+                Let's talk <span class="btn__arrow" aria-hidden="true">→</span>
+              </a>
+              <button class="btn btn--ghost" type="button" data-copy={site.email}>
                 Copy address
               </button>
-              <span class="cabinet__mail">{site.email}</span>
               <p class="cabinet__copied" data-copy-status role="status"></p>
             </div>
             <span class="cabinet__stamp" aria-hidden="true">Found it</span>
@@ -468,13 +471,17 @@ const cards = [
     color: var(--ink);
   }
 
-  .cabinet__mail {
-    align-self: center;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.01em;
-    color: rgba(244, 241, 234, 0.88);
-    user-select: text;
+  .cabinet__card--secret .btn--ghost {
+    border-color: rgba(244, 241, 234, 0.55);
+    color: #f4f1ea;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .cabinet__card--secret .btn--ghost:hover {
+    border-color: #f4f1ea;
+    background: rgba(244, 241, 234, 0.12);
+    color: #f4f1ea;
   }
 
   .cabinet__copied {
