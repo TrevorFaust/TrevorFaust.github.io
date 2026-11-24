@@ -94,6 +94,7 @@ const cards = [
                       Copy address
                     </button>
                   )}
+                  <p class="cabinet__copied" data-copy-status role="status"></p>
                 </div>
               </div>
             </article>
@@ -115,6 +116,7 @@ const cards = [
                 Copy address
               </button>
               <span class="cabinet__mail">{site.email}</span>
+              <p class="cabinet__copied" data-copy-status role="status"></p>
             </div>
             <span class="cabinet__stamp" aria-hidden="true">Found it</span>
           </div>
@@ -194,13 +196,24 @@ const cards = [
       });
     });
 
+    const copyTimers = new WeakMap<HTMLElement, number>();
+
     cabinet.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
       button.addEventListener("click", async () => {
+        const address = button.dataset.copy ?? "";
+        const status = button.closest(".cabinet__actions")?.querySelector<HTMLElement>("[data-copy-status]");
         try {
-          await navigator.clipboard.writeText(button.dataset.copy ?? "");
-          const label = button.textContent;
-          button.textContent = "Copied";
-          setTimeout(() => (button.textContent = label), 1600);
+          await navigator.clipboard.writeText(address);
+          if (!status) return;
+          status.textContent = `${address} copied`;
+          const pending = copyTimers.get(status);
+          if (pending) window.clearTimeout(pending);
+          copyTimers.set(
+            status,
+            window.setTimeout(() => {
+              status.textContent = "";
+            }, 2400),
+          );
         } catch {
           /* clipboard can be blocked; the address stays visible on the card */
         }
@@ -462,6 +475,23 @@ const cards = [
     letter-spacing: 0.01em;
     color: rgba(244, 241, 234, 0.88);
     user-select: text;
+  }
+
+  .cabinet__copied {
+    flex: 1 0 100%;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+    color: var(--accent);
+  }
+
+  .cabinet__copied:empty {
+    display: none;
+  }
+
+  .cabinet__card--secret .cabinet__copied {
+    color: #f4f1ea;
   }
 
   .cabinet__stamp {
